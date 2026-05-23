@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ═══════════════════════════════════════════════════════
+   THEME — Brand tokens for Didaction Healthcare
+═══════════════════════════════════════════════════════ */
+@theme {
+    /* Brand Colors */
+    --color-brand-teal: #0D6E6E;
+    --color-brand-teal-light: #0E8585;
+    --color-brand-teal-lighter: #12A3A3;
+    --color-brand-teal-pale: #E6F5F5;
+    --color-brand-teal-wash: #F0FAFA;
+    --color-brand-sage: #A8C5A0;
+    --color-brand-sage-light: #B5D4BC;
+    --color-brand-sage-pale: #E8F3EA;
+    --color-brand-cream: #F8FAF9;
+    --color-brand-dark: #1A2E2E;
+    --color-brand-coral: #E8725A;
+
+    /* Typography */
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Custom Animations */
+    --animate-fade-in-up: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-float-accent: float-accent 5s ease-in-out infinite;
+    --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+    --animate-progress-fill: progress-fill 2s ease-out 0.5s both;
+    --animate-orb: orb-float 8s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════════════════════ */
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(36px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(0.5deg); }
+}
+
+@keyframes float-accent {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+@keyframes progress-fill {
+    from { width: 0; }
+}
+
+@keyframes orb-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(20px, -30px) scale(1.05); }
+    66% { transform: translate(-15px, 20px) scale(0.95); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   REUSABLE UTILITY CLASSES
+═══════════════════════════════════════════════════════ */
+@utility btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           font-semibold text-sm text-white
+           rounded-full px-6 py-3
+           bg-gradient-to-br from-brand-teal-light to-brand-teal
+           shadow-[0_2px_8px_rgba(13,110,110,0.25)]
+           transition-all duration-300 ease-out
+           hover:-translate-y-0.5
+           hover:shadow-[0_6px_20px_rgba(13,110,110,0.35)]
+           active:translate-y-0
+           active:shadow-[0_2px_8px_rgba(13,110,110,0.25)]
+           cursor-pointer whitespace-nowrap;
+}
+
+@utility btn-primary-lg {
+    @apply btn-primary px-8 py-3.5 text-base;
+}
+
+@utility btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           font-semibold text-sm text-brand-teal
+           rounded-full px-6 py-3
+           bg-white border border-gray-200
+           shadow-sm
+           transition-all duration-300 ease-out
+           hover:-translate-y-0.5 hover:border-brand-teal
+           hover:bg-brand-teal-wash hover:shadow-md
+           cursor-pointer whitespace-nowrap;
+}
+
+@utility btn-secondary-lg {
+    @apply btn-secondary px-8 py-3.5 text-base;
+}
+
+@utility btn-white {
+    @apply inline-flex items-center justify-center gap-2
+           font-bold text-base text-brand-teal
+           rounded-full px-8 py-3.5
+           bg-white
+           shadow-[0_4px_14px_rgba(0,0,0,0.10)]
+           transition-all duration-300 ease-out
+           hover:-translate-y-0.5
+           hover:shadow-[0_8px_28px_rgba(0,0,0,0.15)]
+           cursor-pointer whitespace-nowrap;
+}
+
+@utility card-glass {
+    @apply bg-white/65 backdrop-blur-xl
+           border border-white/45
+           rounded-2xl
+           shadow-[0_2px_8px_rgba(13,110,110,0.06),0_8px_24px_rgba(13,110,110,0.06)]
+           transition-all duration-300 ease-out;
+}
+
+@utility card-glass-hover {
+    @apply hover:-translate-y-1.5
+           hover:shadow-[0_20px_50px_rgba(13,110,110,0.12),0_8px_20px_rgba(0,0,0,0.05)]
+           hover:border-brand-teal/15;
+}
+
+@utility section-padding {
+    @apply py-24 md:py-32;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL-REVEAL STATES (used by robust Intersection Observer)
+═══════════════════════════════════════════════════════ */
+@utility reveal {
+    @apply opacity-0 translate-y-9 transition-all duration-[800ms];
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility revealed {
+    @apply opacity-100 translate-y-0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SMOOTH SCROLL
+═══════════════════════════════════════════════════════ */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
+}

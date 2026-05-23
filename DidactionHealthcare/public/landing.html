@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Didaction Healthcare — AI-Powered Personalized Health Guidance</title>
+  <meta name="description" content="Didaction Healthcare analyzes your health condition and provides personalized lifestyle and dietary recommendations powered by AI. Start your free assessment today." />
+  <meta name="keywords" content="health, AI, personalized diet, lifestyle recommendations, healthcare, wellness" />
+  <meta name="author" content="Didaction Healthcare" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       GOOGLE FONTS
+    ═══════════════════════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    /* ═══════════════════════════════════════════════════════
+       CSS CUSTOM PROPERTIES
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      /* Colors */
+      --color-teal-deep: #0D6E6E;
+      --color-teal: #0E8585;
+      --color-teal-light: #12A3A3;
+      --color-teal-pale: #E6F5F5;
+      --color-teal-wash: #F0FAFA;
+      --color-sage: #8FBB99;
+      --color-sage-light: #B5D4BC;
+      --color-sage-pale: #E8F3EA;
+      --color-white: #FFFFFF;
+      --color-off-white: #F8FAFB;
+      --color-gray-50: #F7F8F9;
+      --color-gray-100: #EEF0F2;
+      --color-gray-200: #DDE1E6;
+      --color-gray-300: #C1C7CD;
+      --color-gray-400: #A2A9B0;
+      --color-gray-500: #6F7780;
+      --color-gray-600: #4D5560;
+      --color-gray-700: #343A40;
+      --color-gray-800: #21272A;
+      --color-gray-900: #121619;
+      --color-coral: #E8725A;
+
+      /* Typography */
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+      --fs-hero: clamp(2.5rem, 5vw + 1rem, 4.25rem);
+      --fs-h2: clamp(1.75rem, 3vw + 0.5rem, 2.75rem);
+      --fs-h3: clamp(1.15rem, 1.5vw + 0.3rem, 1.5rem);
+      --fs-body: 1rem;
+      --fs-body-lg: 1.125rem;
+      --fs-small: 0.875rem;
+      --fs-xs: 0.8125rem;
+      --lh-tight: 1.15;
+      --lh-snug: 1.3;
+      --lh-normal: 1.6;
+
+      /* Spacing */
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+      --space-3xl: 4rem;
+      --space-4xl: 6rem;
+      --space-5xl: 8rem;
+
+      /* Layout */
+      --max-width: 1200px;
+      --nav-height: 72px;
+
+      /* Effects */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-pill: 100px;
+      --shadow-sm: 0 1px 3px rgba(13, 110, 110, 0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 14px rgba(13, 110, 110, 0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 30px rgba(13, 110, 110, 0.10), 0 4px 10px rgba(0,0,0,0.04);
+      --shadow-xl: 0 20px 50px rgba(13, 110, 110, 0.12), 0 8px 20px rgba(0,0,0,0.05);
+      --shadow-card: 0 2px 8px rgba(13, 110, 110, 0.06), 0 8px 24px rgba(13, 110, 110, 0.06);
+      --glass-bg: rgba(255, 255, 255, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.45);
+      --glass-blur: blur(16px);
+      --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════════════════ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: var(--nav-height);
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: var(--lh-normal);
+      color: var(--color-gray-700);
+      background: var(--color-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SCROLL REVEAL ANIMATIONS
+    ═══════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.35s; }
+    .reveal-delay-5 { transition-delay: 0.4s; }
+    .reveal-delay-6 { transition-delay: 0.45s; }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION HEADING PATTERN
+    ═══════════════════════════════════════════════════════ */
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-body);
+      font-size: var(--fs-small);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-teal);
+      margin-bottom: var(--space-md);
+    }
+    .section-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2px;
+      background: var(--color-teal);
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h2);
+      line-height: var(--lh-tight);
+      color: var(--color-gray-800);
+      margin-bottom: var(--space-md);
+    }
+
+    .section-subtitle {
+      font-size: var(--fs-body-lg);
+      color: var(--color-gray-500);
+      max-width: 600px;
+      line-height: var(--lh-normal);
+    }
+
+    .section-header--center {
+      text-align: center;
+    }
+    .section-header--center .section-subtitle {
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       1. NAVBAR
+    ═══════════════════════════════════════════════════════ */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      z-index: 1000;
+      transition: background var(--transition-base), box-shadow var(--transition-base);
+    }
+    .navbar.scrolled {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(13, 110, 110, 0.06), var(--shadow-sm);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--color-gray-800);
+      white-space: nowrap;
+    }
+    .navbar__logo-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-teal), var(--color-teal-deep));
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .navbar__logo-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .navbar__links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+    .navbar__link {
+      font-size: var(--fs-small);
+      font-weight: 500;
+      color: var(--color-gray-600);
+      transition: color var(--transition-base);
+      position: relative;
+    }
+    .navbar__link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      background: var(--color-teal);
+      border-radius: 2px;
+      transition: width var(--transition-base);
+    }
+    .navbar__link:hover {
+      color: var(--color-teal-deep);
+    }
+    .navbar__link:hover::after {
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: var(--fs-small);
+      border-radius: var(--radius-pill);
+      padding: 0.65rem 1.5rem;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+    .btn--primary {
+      background: linear-gradient(135deg, var(--color-teal), var(--color-teal-deep));
+      color: var(--color-white);
+      box-shadow: 0 2px 8px rgba(13, 110, 110, 0.25);
+    }
+    .btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 110, 110, 0.35);
+    }
+    .btn--primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(13, 110, 110, 0.25);
+    }
+
+    .btn--secondary {
+      background: var(--color-white);
+      color: var(--color-teal-deep);
+      border: 1.5px solid var(--color-gray-200);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn--secondary:hover {
+      border-color: var(--color-teal);
+      background: var(--color-teal-wash);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn--large {
+      padding: 0.85rem 2rem;
+      font-size: var(--fs-body);
+    }
+
+    .btn--white {
+      background: var(--color-white);
+      color: var(--color-teal-deep);
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    }
+    .btn--white:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+    }
+
+    /* Mobile hamburger */
+    .navbar__hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 28px;
+      padding: 4px 0;
+    }
+    .navbar__hamburger span {
+      display: block;
+      height: 2px;
+      background: var(--color-gray-700);
+      border-radius: 2px;
+      transition: all var(--transition-base);
+    }
+
+    .navbar__mobile-menu {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      .navbar__links { display: none; }
+      .navbar__cta-desktop { display: none !important; }
+      .navbar__hamburger { display: flex; }
+
+      .navbar__mobile-menu {
+        position: fixed;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: var(--space-xl) var(--space-lg);
+        flex-direction: column;
+        gap: var(--space-lg);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-10px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all var(--transition-base);
+      }
+      .navbar__mobile-menu.open {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+      .navbar__mobile-menu .navbar__link {
+        font-size: var(--fs-body-lg);
+        padding: var(--space-xs) 0;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       2. HERO SECTION
+    ═══════════════════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      padding: calc(var(--nav-height) + var(--space-4xl)) 0 var(--space-5xl);
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Background gradient mesh */
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(13,110,110,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 80% 30%, rgba(143,187,153,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 50% 80%, rgba(14,133,133,0.04) 0%, transparent 70%),
+        linear-gradient(180deg, var(--color-white) 0%, var(--color-teal-wash) 50%, var(--color-white) 100%);
+    }
+
+    /* Subtle geometric medical pattern */
+    .hero__pattern {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.025;
+      background-image:
+        linear-gradient(var(--color-teal) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-teal) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Floating orbs */
+    .hero__orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 1;
+      animation: orb-float 8s ease-in-out infinite;
+    }
+    .hero__orb--1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(13, 110, 110, 0.07);
+      top: 10%;
+      left: -5%;
+      animation-delay: 0s;
+    }
+    .hero__orb--2 {
+      width: 300px;
+      height: 300px;
+      background: rgba(143, 187, 153, 0.08);
+      bottom: 10%;
+      right: -5%;
+      animation-delay: -3s;
+    }
+    .hero__orb--3 {
+      width: 200px;
+      height: 200px;
+      background: rgba(14, 133, 133, 0.06);
+      top: 50%;
+      left: 50%;
+      animation-delay: -5s;
+    }
+    @keyframes orb-float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -30px) scale(1.05); }
+      66% { transform: translate(-15px, 20px) scale(0.95); }
+    }
+
+    .hero__inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      align-items: center;
+    }
+
+    .hero__content {
+      max-width: 560px;
+    }
+
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background: var(--color-teal-pale);
+      color: var(--color-teal-deep);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--space-xl);
+      border: 1px solid rgba(13, 110, 110, 0.1);
+    }
+    .hero__badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--color-teal);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: var(--fs-hero);
+      line-height: var(--lh-tight);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-lg);
+    }
+    .hero__title-accent {
+      color: var(--color-teal-deep);
+    }
+
+    .hero__subtitle {
+      font-size: var(--fs-body-lg);
+      color: var(--color-gray-500);
+      line-height: var(--lh-normal);
+      margin-bottom: var(--space-2xl);
+      max-width: 480px;
+    }
+
+    .hero__actions {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    /* Floating health card visual */
+    .hero__visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 420px;
+      animation: card-float 6s ease-in-out infinite;
+    }
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(0.5deg); }
+    }
+
+    .hero-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xl);
+    }
+    .hero-card__avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--color-teal-pale), var(--color-sage-pale));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .hero-card__user-info {
+      flex: 1;
+    }
+    .hero-card__name {
+      font-weight: 600;
+      font-size: var(--fs-small);
+      color: var(--color-gray-800);
+    }
+    .hero-card__label {
+      font-size: var(--fs-xs);
+      color: var(--color-gray-400);
+    }
+    .hero-card__status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-teal);
+    }
+    .hero-card__status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--color-teal);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    .hero-card__stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xl);
+    }
+    .hero-stat {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+      border: 1px solid var(--color-gray-100);
+    }
+    .hero-stat__value {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      color: var(--color-gray-800);
+      display: block;
+    }
+    .hero-stat__label {
+      font-size: var(--fs-xs);
+      color: var(--color-gray-400);
+      margin-top: 2px;
+    }
+
+    .hero-card__progress {
+      margin-bottom: var(--space-md);
+    }
+    .hero-card__progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--fs-xs);
+      margin-bottom: var(--space-xs);
+    }
+    .hero-card__progress-label {
+      font-weight: 600;
+      color: var(--color-gray-700);
+    }
+    .hero-card__progress-value {
+      color: var(--color-teal);
+      font-weight: 600;
+    }
+    .hero-card__progress-bar {
+      height: 6px;
+      background: var(--color-gray-100);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .hero-card__progress-fill {
+      height: 100%;
+      width: 78%;
+      background: linear-gradient(90deg, var(--color-teal), var(--color-sage));
+      border-radius: 10px;
+      animation: progress-fill 2s ease-out 0.5s both;
+    }
+    @keyframes progress-fill {
+      from { width: 0; }
+    }
+
+    .hero-card__recommendation {
+      background: var(--color-teal-pale);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      border: 1px solid rgba(13, 110, 110, 0.08);
+    }
+    .hero-card__recommendation-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .hero-card__recommendation-text {
+      font-size: var(--fs-xs);
+      color: var(--color-teal-deep);
+      line-height: 1.5;
+    }
+    .hero-card__recommendation-text strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    /* Small floating accent cards */
+    .hero__float-card {
+      position: absolute;
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-gray-700);
+      z-index: 3;
+      border: 1px solid var(--color-gray-100);
+    }
+    .hero__float-card--top {
+      top: 0;
+      right: -20px;
+      animation: float-accent 5s ease-in-out infinite;
+    }
+    .hero__float-card--bottom {
+      bottom: 20px;
+      left: -10px;
+      animation: float-accent 5s ease-in-out infinite;
+      animation-delay: -2.5s;
+    }
+    @keyframes float-accent {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .hero__float-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .hero__float-icon--green {
+      background: var(--color-sage-pale);
+    }
+    .hero__float-icon--teal {
+      background: var(--color-teal-pale);
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        padding-top: calc(var(--nav-height) + var(--space-3xl));
+        padding-bottom: var(--space-3xl);
+      }
+      .hero__inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+        text-align: center;
+      }
+      .hero__content { max-width: 100%; }
+      .hero__subtitle { margin: 0 auto var(--space-2xl); }
+      .hero__actions { justify-content: center; }
+      .hero__visual { order: -1; }
+      .hero-card { max-width: 380px; margin: 0 auto; }
+      .hero__float-card { display: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       3. HOW IT WORKS
+    ═══════════════════════════════════════════════════════ */
+    .how-it-works {
+      padding: var(--space-5xl) 0;
+      background: var(--color-off-white);
+      position: relative;
+    }
+    .how-it-works::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-gray-200), transparent);
+    }
+
+    .how-it-works__header {
+      text-align: center;
+      margin-bottom: var(--space-4xl);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+      position: relative;
+    }
+
+    /* Connecting line */
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 48px;
+      left: calc(16.666% + 20px);
+      right: calc(16.666% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-teal-pale), var(--color-teal), var(--color-teal-pale));
+      z-index: 1;
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step__icon-wrap {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--color-white);
+      border: 2px solid var(--color-teal-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-xl);
+      position: relative;
+      transition: all var(--transition-base);
+      box-shadow: var(--shadow-sm);
+    }
+    .step:hover .step__icon-wrap {
+      border-color: var(--color-teal);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .step__number {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--color-teal), var(--color-teal-deep));
+      border-radius: 50%;
+      color: var(--color-white);
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--color-off-white);
+    }
+
+    .step__icon {
+      font-size: 2.2rem;
+    }
+
+    .step__title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h3);
+      color: var(--color-gray-800);
+      margin-bottom: var(--space-sm);
+    }
+    .step__text {
+      font-size: var(--fs-small);
+      color: var(--color-gray-500);
+      max-width: 280px;
+      margin: 0 auto;
+      line-height: var(--lh-normal);
+    }
+
+    @media (max-width: 768px) {
+      .steps {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .steps::before { display: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       4. FEATURES
+    ═══════════════════════════════════════════════════════ */
+    .features {
+      padding: var(--space-5xl) 0;
+      position: relative;
+    }
+
+    .features__header {
+      text-align: center;
+      margin-bottom: var(--space-4xl);
+    }
+
+    .features__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: var(--space-lg);
+    }
+
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2xl);
+      transition: all var(--transition-base);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-teal), var(--color-sage));
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-xl);
+      border-color: rgba(13, 110, 110, 0.15);
+    }
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: var(--space-lg);
+      background: var(--color-teal-pale);
+      border: 1px solid rgba(13, 110, 110, 0.06);
+    }
+
+    .feature-card__title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h3);
+      color: var(--color-gray-800);
+      margin-bottom: var(--space-sm);
+    }
+
+    .feature-card__text {
+      font-size: var(--fs-small);
+      color: var(--color-gray-500);
+      line-height: var(--lh-normal);
+    }
+
+    @media (max-width: 900px) {
+      .features__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .features__grid { grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       5. DEMO / HEALTH INPUT PREVIEW
+    ═══════════════════════════════════════════════════════ */
+    .demo {
+      padding: var(--space-5xl) 0;
+      background: var(--color-off-white);
+      position: relative;
+    }
+    .demo::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-gray-200), transparent);
+    }
+
+    .demo__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4xl);
+      align-items: center;
+    }
+
+    .demo__content {
+      max-width: 480px;
+    }
+
+    .demo__mockup {
+      position: relative;
+    }
+
+    .demo-card {
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      border: 1px solid var(--color-gray-100);
+    }
+
+    .demo-card__header {
+      padding: var(--space-lg) var(--space-xl);
+      border-bottom: 1px solid var(--color-gray-100);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .demo-card__header-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-gray-200);
+    }
+    .demo-card__header-dot--green { background: var(--color-sage); }
+    .demo-card__header-title {
+      font-size: var(--fs-small);
+      font-weight: 600;
+      color: var(--color-gray-700);
+      margin-left: var(--space-xs);
+    }
+
+    .demo-card__body {
+      padding: var(--space-xl);
+    }
+
+    .demo-card__textarea {
+      width: 100%;
+      min-height: 100px;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--fs-small);
+      color: var(--color-gray-600);
+      resize: none;
+      outline: none;
+      transition: border-color var(--transition-base);
+      background: var(--color-gray-50);
+    }
+    .demo-card__textarea:focus {
+      border-color: var(--color-teal);
+      background: var(--color-white);
+    }
+
+    .demo-card__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin: var(--space-md) 0;
+    }
+    .demo-card__tag {
+      padding: 0.3rem 0.75rem;
+      background: var(--color-teal-pale);
+      color: var(--color-teal-deep);
+      font-size: var(--fs-xs);
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(13, 110, 110, 0.08);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    .demo-card__tag:hover {
+      background: var(--color-teal);
+      color: var(--color-white);
+    }
+
+    .demo-card__submit {
+      width: 100%;
+      margin-top: var(--space-md);
+    }
+
+    /* Blurred result preview */
+    .demo-card__results {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-gray-100);
+      filter: blur(3px);
+      user-select: none;
+      pointer-events: none;
+      position: relative;
+    }
+    .demo-card__results-label {
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-sm);
+    }
+
+    .demo-result-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+    .demo-result-card {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      border: 1px solid var(--color-gray-100);
+    }
+    .demo-result-card__icon {
+      font-size: 1.2rem;
+      margin-bottom: var(--space-xs);
+    }
+    .demo-result-card__title {
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-gray-700);
+      margin-bottom: 4px;
+    }
+    .demo-result-card__text {
+      font-size: 11px;
+      color: var(--color-gray-400);
+      line-height: 1.4;
+    }
+
+    .demo-card__results-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: none;
+      z-index: 2;
+    }
+    .demo-card__results-overlay-badge {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-pill);
+      padding: 0.4rem 1rem;
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-teal-deep);
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 900px) {
+      .demo__inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+      }
+      .demo__content { text-align: center; max-width: 100%; }
+      .demo__content .section-subtitle { margin: 0 auto; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       6. TESTIMONIALS
+    ═══════════════════════════════════════════════════════ */
+    .testimonials {
+      padding: var(--space-5xl) 0;
+      position: relative;
+    }
+
+    .testimonials__header {
+      text-align: center;
+      margin-bottom: var(--space-4xl);
+    }
+
+    .testimonials__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .testimonial-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-100);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2xl);
+      transition: all var(--transition-base);
+      position: relative;
+    }
+    .testimonial-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+
+    .testimonial-card__stars {
+      display: flex;
+      gap: 2px;
+      margin-bottom: var(--space-md);
+    }
+    .testimonial-card__star {
+      color: #F5B731;
+      font-size: 1rem;
+    }
+
+    .testimonial-card__quote {
+      font-size: var(--fs-body);
+      color: var(--color-gray-600);
+      line-height: var(--lh-normal);
+      margin-bottom: var(--space-xl);
+      font-style: italic;
+      position: relative;
+    }
+    .testimonial-card__quote::before {
+      content: '"';
+      font-family: var(--font-display);
+      font-size: 3rem;
+      color: var(--color-teal-pale);
+      position: absolute;
+      top: -12px;
+      left: -4px;
+      line-height: 1;
+    }
+
+    .testimonial-card__author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-gray-100);
+    }
+
+    .testimonial-card__avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .testimonial-card__avatar--1 {
+      background: linear-gradient(135deg, var(--color-teal-pale), #C5E8E8);
+    }
+    .testimonial-card__avatar--2 {
+      background: linear-gradient(135deg, var(--color-sage-pale), #D4E9D7);
+    }
+    .testimonial-card__avatar--3 {
+      background: linear-gradient(135deg, #FDE8E3, #FADDD5);
+    }
+
+    .testimonial-card__name {
+      font-weight: 600;
+      font-size: var(--fs-small);
+      color: var(--color-gray-800);
+    }
+    .testimonial-card__condition {
+      font-size: var(--fs-xs);
+      color: var(--color-gray-400);
+    }
+
+    @media (max-width: 900px) {
+      .testimonials__grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       7. CTA BANNER
+    ═══════════════════════════════════════════════════════ */
+    .cta-banner {
+      padding: var(--space-5xl) 0;
+      background: linear-gradient(135deg, var(--color-teal-deep) 0%, var(--color-teal) 50%, #1A9E8F 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner__pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.06;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.2) 0%, transparent 50%);
+    }
+
+    .cta-banner__inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .cta-banner__title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h2);
+      color: var(--color-white);
+      margin-bottom: var(--space-md);
+    }
+
+    .cta-banner__text {
+      font-size: var(--fs-body-lg);
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: var(--space-2xl);
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       8. FOOTER
+    ═══════════════════════════════════════════════════════ */
+    .footer {
+      padding: var(--space-4xl) 0 var(--space-xl);
+      background: var(--color-gray-900);
+      color: var(--color-gray-400);
+    }
+
+    .footer__top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: var(--space-2xl);
+      padding-bottom: var(--space-3xl);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer__brand-tagline {
+      font-size: var(--fs-small);
+      color: var(--color-gray-400);
+      margin-top: var(--space-md);
+      max-width: 300px;
+      line-height: var(--lh-normal);
+    }
+
+    .footer__col-title {
+      font-weight: 600;
+      font-size: var(--fs-small);
+      color: var(--color-gray-200);
+      margin-bottom: var(--space-lg);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .footer__links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .footer__link {
+      font-size: var(--fs-small);
+      color: var(--color-gray-400);
+      transition: color var(--transition-base);
+    }
+    .footer__link:hover {
+      color: var(--color-teal-light);
+    }
+
+    .footer__socials {
+      display: flex;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    .footer__social {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-base);
+    }
+    .footer__social:hover {
+      background: var(--color-teal);
+      transform: translateY(-2px);
+    }
+    .footer__social svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--color-gray-400);
+    }
+    .footer__social:hover svg {
+      fill: var(--color-white);
+    }
+
+    .footer__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--space-xl);
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+    .footer__copyright {
+      font-size: var(--fs-xs);
+    }
+    .footer__disclaimer {
+      font-size: var(--fs-xs);
+      color: var(--color-gray-500);
+      max-width: 400px;
+      text-align: right;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    .footer__logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--color-gray-200);
+    }
+    .footer__logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--color-teal), var(--color-teal-deep));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer__logo-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .footer__top {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-xl);
+      }
+      .footer__bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+      .footer__disclaimer { text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .footer__top { grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       UTILITIES
+    ═══════════════════════════════════════════════════════ */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════
+       1. NAVBAR
+  ════════════════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar__inner">
+      <a href="#" class="navbar__logo" aria-label="Didaction Healthcare — Home">
+        <span class="navbar__logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4v16M4 12h16"/>
+            <path d="M5.5 5.5l13 13M18.5 5.5l-13 13" opacity="0.3"/>
+          </svg>
+        </span>
+        Didaction Healthcare
+      </a>
+
+      <ul class="navbar__links">
+        <li><a href="#home" class="navbar__link">Home</a></li>
+        <li><a href="#how-it-works" class="navbar__link">How It Works</a></li>
+        <li><a href="#features" class="navbar__link">Features</a></li>
+        <li><a href="#testimonials" class="navbar__link">Testimonials</a></li>
+        <li><a href="#get-started" class="navbar__link">Get Started</a></li>
+      </ul>
+
+      <a href="#get-started" class="btn btn--primary navbar__cta-desktop" id="nav-cta">Check My Health</a>
+
+      <button class="navbar__hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__mobile-menu" id="mobile-menu">
+      <a href="#home" class="navbar__link">Home</a>
+      <a href="#how-it-works" class="navbar__link">How It Works</a>
+      <a href="#features" class="navbar__link">Features</a>
+      <a href="#testimonials" class="navbar__link">Testimonials</a>
+      <a href="#get-started" class="navbar__link">Get Started</a>
+      <a href="#get-started" class="btn btn--primary" style="text-align:center;">Check My Health</a>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════
+       2. HERO SECTION
+  ════════════════════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero__bg"></div>
+    <div class="hero__pattern"></div>
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
+    <div class="hero__orb hero__orb--3"></div>
+
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <div class="hero__badge reveal">
+          <span class="hero__badge-dot"></span>
+          AI-Powered Health Platform
+        </div>
+        <h1 class="hero__title reveal reveal-delay-1">
+          Tell Us Your Health Condition.<br/>
+          <span class="hero__title-accent">We'll Guide Your Life.</span>
+        </h1>
+        <p class="hero__subtitle reveal reveal-delay-2">
+          Get AI-powered recommendations for your daily lifestyle and nutrition — tailored to exactly how you feel today.
+        </p>
+        <div class="hero__actions reveal reveal-delay-3">
+          <a href="#get-started" class="btn btn--primary btn--large">
+            Start Free Assessment
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#how-it-works" class="btn btn--secondary btn--large">See How It Works</a>
+        </div>
+      </div>
+
+      <div class="hero__visual reveal reveal-delay-2">
+        <div class="hero__float-card hero__float-card--top">
+          <span class="hero__float-icon hero__float-icon--green">🥗</span>
+          Diet Plan Updated
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-card__header">
+            <div class="hero-card__avatar">👤</div>
+            <div class="hero-card__user-info">
+              <div class="hero-card__name">Sarah Mitchell</div>
+              <div class="hero-card__label">Health Dashboard</div>
+            </div>
+            <div class="hero-card__status">
+              <span class="hero-card__status-dot"></span>
+              Active
+            </div>
+          </div>
+
+          <div class="hero-card__stats">
+            <div class="hero-stat">
+              <span class="hero-stat__value">92</span>
+              <span class="hero-stat__label">Health Score</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat__value">7.2h</span>
+              <span class="hero-stat__label">Avg Sleep</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat__value">1840</span>
+              <span class="hero-stat__label">Cal Target</span>
+            </div>
+          </div>
+
+          <div class="hero-card__progress">
+            <div class="hero-card__progress-header">
+              <span class="hero-card__progress-label">Weekly Goal Progress</span>
+              <span class="hero-card__progress-value">78%</span>
+            </div>
+            <div class="hero-card__progress-bar">
+              <div class="hero-card__progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="hero-card__recommendation">
+            <span class="hero-card__recommendation-icon">💡</span>
+            <div class="hero-card__recommendation-text">
+              <strong>Today's Recommendation</strong>
+              Add leafy greens & omega-3 rich foods. Consider a 20-min evening walk for better sleep quality.
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__float-card hero__float-card--bottom">
+          <span class="hero__float-icon hero__float-icon--teal">📊</span>
+          Progress: +12%
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       3. HOW IT WORKS
+  ════════════════════════════════════════════════════════ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="how-it-works__header">
+        <div class="section-eyebrow reveal">How It Works</div>
+        <h2 class="section-title reveal reveal-delay-1">Three Simple Steps to a Healthier You</h2>
+        <p class="section-subtitle reveal reveal-delay-2" style="margin:0 auto;">No complex sign-ups or lengthy questionnaires. Our AI works with what you share.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step reveal reveal-delay-1">
+          <div class="step__icon-wrap">
+            <span class="step__number">1</span>
+            <span class="step__icon">📝</span>
+          </div>
+          <h3 class="step__title">Share Your Condition</h3>
+          <p class="step__text">Input your health status, symptoms, or medical background in your own words — no medical jargon required.</p>
+        </div>
+
+        <div class="step reveal reveal-delay-2">
+          <div class="step__icon-wrap">
+            <span class="step__number">2</span>
+            <span class="step__icon">🧠</span>
+          </div>
+          <h3 class="step__title">AI Analyzes</h3>
+          <p class="step__text">Our system processes your data and maps it to evidence-based health guidelines and nutritional science.</p>
+        </div>
+
+        <div class="step reveal reveal-delay-3">
+          <div class="step__icon-wrap">
+            <span class="step__number">3</span>
+            <span class="step__icon">✨</span>
+          </div>
+          <h3 class="step__title">Get Your Plan</h3>
+          <p class="step__text">Receive personalized lifestyle habits and meal recommendations tailored specifically to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       4. FEATURES
+  ════════════════════════════════════════════════════════ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features__header">
+        <div class="section-eyebrow reveal">Features</div>
+        <h2 class="section-title reveal reveal-delay-1">Everything You Need for Better Health</h2>
+        <p class="section-subtitle reveal reveal-delay-2" style="margin:0 auto;">Powered by advanced AI, designed with your well-being in mind.</p>
+      </div>
+
+      <div class="features__grid">
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-card__icon">🥗</div>
+          <h3 class="feature-card__title">Personalized Diet Plans</h3>
+          <p class="feature-card__text">Receive meal plans curated to your health conditions, dietary preferences, and nutritional needs.</p>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-card__icon">🏃</div>
+          <h3 class="feature-card__title">Lifestyle & Activity Guidance</h3>
+          <p class="feature-card__text">Get daily movement and lifestyle recommendations that fit your current health status and energy levels.</p>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-card__icon">🩺</div>
+          <h3 class="feature-card__title">Condition-Based Insights</h3>
+          <p class="feature-card__text">Understand how your conditions interact and receive targeted insights backed by clinical evidence.</p>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-4">
+          <div class="feature-card__icon">📊</div>
+          <h3 class="feature-card__title">Health Progress Tracking</h3>
+          <p class="feature-card__text">Monitor your improvements over time with visual dashboards and milestone celebrations.</p>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-5">
+          <div class="feature-card__icon">🔒</div>
+          <h3 class="feature-card__title">Private & Secure Data</h3>
+          <p class="feature-card__text">Your health data is encrypted and never shared. We follow strict healthcare privacy standards.</p>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-6">
+          <div class="feature-card__icon">⚡</div>
+          <h3 class="feature-card__title">Instant AI Recommendations</h3>
+          <p class="feature-card__text">Get actionable health recommendations in seconds, not days. Our AI works in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       5. DEMO / HEALTH INPUT PREVIEW
+  ════════════════════════════════════════════════════════ -->
+  <section class="demo" id="get-started">
+    <div class="container demo__inner">
+      <div class="demo__content">
+        <div class="section-eyebrow reveal">Try It Yourself</div>
+        <h2 class="section-title reveal reveal-delay-1">See What Personalized Health Looks Like</h2>
+        <p class="section-subtitle reveal reveal-delay-2">Describe your condition in your own words. Our AI understands natural language and provides meaningful, actionable guidance.</p>
+        <div style="margin-top: var(--space-xl);" class="reveal reveal-delay-3">
+          <div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span style="font-size:var(--fs-small);color:var(--color-gray-600);">No sign-up required to preview</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span style="font-size:var(--fs-small);color:var(--color-gray-600);">Results in under 30 seconds</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-sm);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span style="font-size:var(--fs-small);color:var(--color-gray-600);">100% private — data never stored</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo__mockup reveal reveal-delay-2">
+        <div class="demo-card">
+          <div class="demo-card__header">
+            <span class="demo-card__header-dot"></span>
+            <span class="demo-card__header-dot"></span>
+            <span class="demo-card__header-dot demo-card__header-dot--green"></span>
+            <span class="demo-card__header-title">Health Assessment</span>
+          </div>
+          <div class="demo-card__body">
+            <textarea class="demo-card__textarea" placeholder="Describe your current health condition..." id="demo-textarea" rows="4">I've been experiencing frequent fatigue and difficulty sleeping. I also have mild hypertension and want to improve my diet.</textarea>
+            <div class="demo-card__tags">
+              <span class="demo-card__tag">#Fatigue</span>
+              <span class="demo-card__tag">#Hypertension</span>
+              <span class="demo-card__tag">#Sleep Issues</span>
+              <span class="demo-card__tag">#Diet</span>
+            </div>
+            <button class="btn btn--primary demo-card__submit" id="demo-submit">
+              Get Recommendations
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+
+            <div class="demo-card__results" style="position:relative;">
+              <div class="demo-card__results-label">Your Personalized Results</div>
+              <div class="demo-result-cards">
+                <div class="demo-result-card">
+                  <div class="demo-result-card__icon">🥗</div>
+                  <div class="demo-result-card__title">Diet Plan</div>
+                  <div class="demo-result-card__text">Focus on potassium-rich foods: bananas, spinach, sweet potatoes. Reduce sodium intake to under 1500mg daily.</div>
+                </div>
+                <div class="demo-result-card">
+                  <div class="demo-result-card__icon">🏃</div>
+                  <div class="demo-result-card__title">Activity Plan</div>
+                  <div class="demo-result-card__text">30-min moderate walking daily. Add yoga or stretching before bed to improve sleep quality.</div>
+                </div>
+              </div>
+              <div class="demo-card__results-overlay">
+                <span class="demo-card__results-overlay-badge">🔒 Sign up to see full results</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       6. TESTIMONIALS
+  ════════════════════════════════════════════════════════ -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="testimonials__header">
+        <div class="section-eyebrow reveal">Testimonials</div>
+        <h2 class="section-title reveal reveal-delay-1">Real People, Real Results</h2>
+        <p class="section-subtitle reveal reveal-delay-2" style="margin:0 auto;">See how Didaction Healthcare is helping people take control of their well-being.</p>
+      </div>
+
+      <div class="testimonials__grid">
+        <div class="testimonial-card reveal reveal-delay-1">
+          <div class="testimonial-card__stars">
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+          </div>
+          <p class="testimonial-card__quote">
+            The dietary recommendations were spot-on for my diabetes management. My blood sugar levels have been more stable than ever in the past three months.
+          </p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar testimonial-card__avatar--1">👨</div>
+            <div>
+              <div class="testimonial-card__name">James Rodriguez</div>
+              <div class="testimonial-card__condition">Managing Type 2 Diabetes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal-delay-2">
+          <div class="testimonial-card__stars">
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+          </div>
+          <p class="testimonial-card__quote">
+            I was skeptical at first, but the personalized activity plan helped me manage my chronic fatigue. I finally have energy to enjoy my evenings again.
+          </p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar testimonial-card__avatar--2">👩</div>
+            <div>
+              <div class="testimonial-card__name">Priya Sharma</div>
+              <div class="testimonial-card__condition">Managing Chronic Fatigue</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal-delay-3">
+          <div class="testimonial-card__stars">
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+            <span class="testimonial-card__star">★</span>
+          </div>
+          <p class="testimonial-card__quote">
+            After my hypertension diagnosis, I felt lost. Didaction gave me a clear, simple plan. My doctor was impressed with my progress at the next checkup.
+          </p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar testimonial-card__avatar--3">👨‍🦳</div>
+            <div>
+              <div class="testimonial-card__name">Michael Chen</div>
+              <div class="testimonial-card__condition">Managing Hypertension</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       7. CTA BANNER
+  ════════════════════════════════════════════════════════ -->
+  <section class="cta-banner">
+    <div class="cta-banner__pattern"></div>
+    <div class="container cta-banner__inner">
+      <h2 class="cta-banner__title reveal">Ready to Take Control of Your Health?</h2>
+      <p class="cta-banner__text reveal reveal-delay-1">Join thousands who already live better with Didaction. Your personalized health journey starts with one simple step.</p>
+      <a href="#get-started" class="btn btn--white btn--large reveal reveal-delay-2">
+        Start Your Free Health Assessment
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       8. FOOTER
+  ════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <div class="footer__logo">
+            <span class="footer__logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4v16M4 12h16"/>
+              </svg>
+            </span>
+            Didaction Healthcare
+          </div>
+          <p class="footer__brand-tagline">Your Health, Understood. Your Life, Transformed.</p>
+          <div class="footer__socials">
+            <a href="#" class="footer__social" aria-label="Twitter">
+              <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+            </a>
+            <a href="#" class="footer__social" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <a href="#" class="footer__social" aria-label="Instagram">
+              <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <div class="footer__links">
+            <a href="#" class="footer__link">About Us</a>
+            <a href="#" class="footer__link">Careers</a>
+            <a href="#" class="footer__link">Press Kit</a>
+            <a href="#" class="footer__link">Blog</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Support</h4>
+          <div class="footer__links">
+            <a href="#" class="footer__link">Help Center</a>
+            <a href="#" class="footer__link">Contact Us</a>
+            <a href="#" class="footer__link">FAQ</a>
+            <a href="#" class="footer__link">Community</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Legal</h4>
+          <div class="footer__links">
+            <a href="#" class="footer__link">Privacy Policy</a>
+            <a href="#" class="footer__link">Terms of Service</a>
+            <a href="#" class="footer__link">Cookie Policy</a>
+            <a href="#" class="footer__link">HIPAA Compliance</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <span class="footer__copyright">© 2026 Didaction Healthcare. All rights reserved.</span>
+        <span class="footer__disclaimer">⚕️ Didaction Healthcare is not a substitute for professional medical advice, diagnosis, or treatment. Always consult your physician.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ─── Navbar scroll behavior ─── */
+      const navbar = document.getElementById('navbar');
+      const onScroll = () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 20);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      /* ─── Mobile menu toggle ─── */
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobile-menu');
+      hamburger.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+      });
+      // Close mobile menu on link click
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      /* ─── Scroll Reveal (Intersection Observer) ─── */
+      const revealElements = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      );
+      revealElements.forEach(el => revealObserver.observe(el));
+
+      /* ─── Smooth scroll for anchor links ─── */
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      /* ─── Active nav link highlight ─── */
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.navbar__link');
+      const highlightNav = () => {
+        const scrollY = window.scrollY + 100;
+        sections.forEach(section => {
+          const top = section.offsetTop;
+          const height = section.offsetHeight;
+          const id = section.getAttribute('id');
+          if (scrollY >= top && scrollY < top + height) {
+            navLinks.forEach(link => {
+              link.style.color = '';
+              if (link.getAttribute('href') === '#' + id) {
+                link.style.color = 'var(--color-teal-deep)';
+              }
+            });
+          }
+        });
+      };
+      window.addEventListener('scroll', highlightNav, { passive: true });
+
+      /* ─── Demo tags interaction ─── */
+      const tags = document.querySelectorAll('.demo-card__tag');
+      const textarea = document.getElementById('demo-textarea');
+      tags.forEach(tag => {
+        tag.addEventListener('click', () => {
+          const text = tag.textContent;
+          if (!textarea.value.includes(text)) {
+            textarea.value += (textarea.value ? ' ' : '') + text;
+          }
+          tag.style.background = 'var(--color-teal)';
+          tag.style.color = 'var(--color-white)';
+        });
+      });
+
+      /* ─── Demo submit button interaction ─── */
+      const submitBtn = document.getElementById('demo-submit');
+      submitBtn.addEventListener('click', () => {
+        submitBtn.textContent = 'Analyzing...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.style.pointerEvents = 'none';
+        setTimeout(() => {
+          submitBtn.innerHTML = 'Get Recommendations <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+          submitBtn.style.opacity = '1';
+          submitBtn.style.pointerEvents = 'auto';
+        }, 1500);
+      });
+
+      /* ─── Counter animation for hero stats ─── */
+      const animateCounter = (el, target, suffix = '') => {
+        const duration = 1500;
+        const start = performance.now();
+        const step = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+          const current = Math.round(eased * target);
+          el.textContent = current + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+
+      const statsObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const stats = entry.target.querySelectorAll('.hero-stat__value');
+              if (stats[0]) animateCounter(stats[0], 92);
+              if (stats[1]) {
+                const dur = 1500;
+                const startTime = performance.now();
+                const step = (now) => {
+                  const p = Math.min((now - startTime) / dur, 1);
+                  const eased = 1 - Math.pow(1 - p, 3);
+                  stats[1].textContent = (eased * 7.2).toFixed(1) + 'h';
+                  if (p < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+              }
+              if (stats[2]) animateCounter(stats[2], 1840);
+              statsObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+      const heroCard = document.querySelector('.hero-card');
+      if (heroCard) statsObserver.observe(heroCard);
+
+    })();
+  </script>
+
+</body>
+</html>
