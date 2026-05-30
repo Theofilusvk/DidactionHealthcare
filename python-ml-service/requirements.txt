@@ -1,0 +1,17 @@
+# ─── DHC Python ML Service — Dependencies ────────────────────────────────────
+# Install: pip install -r requirements.txt
+
+# Web framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# Data & ML
+numpy>=1.26.0
+torch>=2.2.0          # PyTorch CPU; untuk GPU: torch>=2.2.0+cu121
+scikit-learn>=1.4.0   # Untuk StandardScaler jika digunakan di luar model
+
+# Data validation (sudah bundled dengan FastAPI, tapi explicit lebih aman)
+pydantic>=2.7.0
+
+# Opsional — untuk load model XGBoost jika bundle berisi keduanya
+xgboost>=2.0.0

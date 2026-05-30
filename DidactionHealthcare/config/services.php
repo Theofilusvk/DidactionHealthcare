@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    // ─── ML Prediction Service (FastAPI Python) ───────────────────────────────
+    'ml' => [
+        'url'     => env('ML_SERVICE_URL', 'http://127.0.0.1:8001'),
+        'timeout' => env('ML_SERVICE_TIMEOUT', 30),
+    ],
+
+    // ─── LLM / Agentic AI (OpenAI-compatible) ────────────────────────────────
+    'openai' => [
+        'api_key'  => env('OPENAI_API_KEY'),
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        'model'    => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        'timeout'  => env('OPENAI_TIMEOUT', 60),
+    ],
+
 ];
