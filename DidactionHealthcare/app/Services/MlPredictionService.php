@@ -9,29 +9,26 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * MlPredictionService
+ * MlPredictionService — Bridge Between Web App and Machine Learning Model
  *
- * Mengirim data kesehatan pengguna ke Python FastAPI ML Service
- * dan mengembalikan hasil prediksi probabilitas 5 penyakit.
+ * This service communicates with a Python FastAPI backend that runs XGBoost
+ * or Neural Network models to predict disease probabilities.
  *
- * Flow:
- *   Controller → MlPredictionService::predict() → POST /predict (FastAPI)
- *                                                ↓
- *                                  array prediksi probabilitas
- *                                                ↓
- *   AgenticAiService::generateAdvice() → prompt ke LLM
+ * Takes patient health data and returns probability scores for 5 diseases:
+ * Heart Disease, Stroke, Diabetes, Hypertension, and Chronic Kidney Disease.
+ *
+ * Complete flow:
+ *   1. Web Controller collects patient health data
+ *   2. MlPredictionService sends it to Python FastAPI server
+ *   3. ML models return disease probabilities
+ *   4. AgenticAiService uses these predictions to generate personalized advice
  */
 class MlPredictionService
 {
-    /**
-     * Base URL service Python FastAPI.
-     * Diambil dari env ML_SERVICE_URL (default: http://127.0.0.1:8001).
-     */
+    /** URL address of the Python FastAPI server (configured via environment variables) */
     private string $baseUrl;
 
-    /**
-     * Timeout request dalam detik.
-     */
+    /** Maximum time in seconds to wait for a response from the ML server before giving up */
     private int $timeout;
 
     public function __construct()
@@ -40,30 +37,42 @@ class MlPredictionService
         $this->timeout = (int) config('services.ml.timeout', 30);
     }
 
-    // ─── Public API ────────────────────────────────────────────────────────────
+    // =======================================================================================
+    //  PUBLIC METHODS — Main ways to use this service
+    // =======================================================================================
 
     /**
-     * Kirim data kesehatan ke ML service dan kembalikan hasil prediksi.
+     * Main Entry Point: Send patient health data to ML model and get disease predictions
      *
-     * @param  array{
-     *     age: int,
-     *     gender: int,
-     *     bmi: float,
-     *     glucose: float,
-     *     blood_pressure: int,
-     *     cholesterol?: float,
-     *     heart_rate?: int
-     * } $healthData Data input pasien
+     * This is the core method. Pass it patient health metrics, and it will call the
+     * Python FastAPI server to get disease probabilities for 5 different diseases.
+     * If the server is unreachable, it automatically falls back to simple calculations.
      *
-     * @return array{
-     *     success: bool,
-     *     model_mode: string,
-     *     predictions: array<string, array{probability: float, percentage: string, risk_level: string}>,
-     *     highest_risk: string,
-     *     raw: array
-     * }
+     * @param  array $healthData Patient health metrics:
+     *                          - age: Years old (int)
+     *                          - gender: 0 = Female, 1 = Male (int)
+     *                          - bmi: Body Mass Index kg/m² (float)
+     *                          - glucose: Blood glucose mg/dL (float)
+     *                          - blood_pressure: Systolic mmHg (int)
+     *                          - cholesterol: Total cholesterol mg/dL (float, optional)
+     *                          - heart_rate: Heartbeats per minute (int, optional)
      *
-     * @throws \RuntimeException Jika service tidak dapat dihubungi
+     * @return array Structure:
+     *               {
+     *                   'success': true/false,
+     *                   'model_mode': 'xgboost' | 'neural_network' | 'local_fallback',
+     *                   'predictions': {
+     *                       'disease_key': {
+     *                           'label': 'Display name',
+     *                           'probability': 0.75 (0 to 1),
+     *                           'percentage': '75.0%',
+     *                           'risk_level': 'Low' | 'Moderate' | 'High'
+     *                       },
+     *                       ... (repeat for 5 diseases)
+     *                   },
+     *                   'highest_risk': 'Heart Disease (75%)',
+     *                   'raw': {...} // debug info
+     *               }
      */
     public function predict(array $healthData): array
     {

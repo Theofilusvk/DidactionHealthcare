@@ -1,0 +1,76 @@
+# ========== Documentation Files ==========
+# Ignore all markdown files (documentation)
+*.md
+
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+env/
+
+# ========== ML Models & Data ==========
+models/*.pth
+models/*.pkl
+models/*.joblib
+*.h5
+*.onnx
+Databases/
+*.csv
+*.xlsx
+
+# ========== IDE & Editors ==========
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# ========== Environment ==========
+.env
+.env.local
+.env.*.local
+
+# ========== Laravel Specific ==========
+/vendor/
+/node_modules/
+npm-debug.log
+yarn-error.log
+.phpunit.result.cache
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# ========== Build Output ==========
+/dist/
+/build/
+*.o
+*.a
+
+# ========== OS Files ==========
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride

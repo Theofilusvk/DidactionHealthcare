@@ -4,16 +4,13 @@
   DHC — Train XGBoost dari MySQL health_records
 ===========================================================
 
-Arsitektur Opsi B:
-  health_records (MySQL)   ← seeded dari CSV datasets
-       ↓ query SELECT
-  DataFrame (training data)
-       ↓ train/test split (80/20)
-  XGBoost per penyakit
-       ↓ pickle.dump
-  python-ml-service/models/*.pkl
-       ↓ loaded by main.py (FastAPI)
-  POST /predict  ← input user (test/inference)
+# Arsitektur:
+# 1. Ambil data training dari MySQL (health_records) yang sudah di-seed dari CSV.
+# 2. Pisahkan data jadi 80% untuk training dan 20% untuk testing.
+# 3. Latih model XGBoost untuk masing-masing penyakit.
+# 4. Simpan hasil latihannya sebagai file .pkl di dalam folder models/.
+# 5. Model ini nanti bakal diload sama FastAPI di main.py untuk proses prediksi
+#    pas user masukin datanya.
 
 Jalankan:
   python python-ml-service/train_from_db.py
@@ -144,9 +141,9 @@ DISEASE_TARGETS = {
 
 def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     """
-    1. Isi nilai kosong dengan median kolom
-    2. Binarisasi label: nilai ≥0.5 → 1 (sakit), <0.5 → 0 (sehat)
-       karena XGBoost membutuhkan label biner, bukan probabilitas
+    # 1. Kalau ada data yang bolong (kosong), kita isi pake nilai tengah (median) dari kolom itu.
+    # 2. Ubah label jadi bentuk biner: kalau nilainya >= 0.5 anggap aja sakit (1), kalau di bawah 0.5 sehat (0).
+    #    Ini perlu banget karena XGBoost maunya data klasifikasi berupa angka 0 dan 1, bukan persentase.
     3. Validasi range fitur
     """
     df = df.copy()
@@ -204,10 +201,10 @@ def train_disease_model(
     """
     Melatih XGBoost untuk satu penyakit.
 
-    - X   : 7 fitur kesehatan (FEATURE_COLS)
-    - y   : label biner penyakit
-    - Split: 80% train / 20% test (stratified)
-    - Input user saat prediksi → data TEST (inference)
+    - X: Berisi 7 fitur kesehatan utama si pasien.
+    - y: Label penyakitnya (0 atau 1).
+    - Data dibagi 80% buat belajar (train), 20% buat ujian (test).
+    - Oh ya, input dari user di aplikasi nantinya dianggap sebagai data baru (inference).
     """
     label_col = f'{disease}_label'
     if label_col not in df.columns:

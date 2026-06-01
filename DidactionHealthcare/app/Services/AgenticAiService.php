@@ -7,34 +7,31 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * AgenticAiService
+ * AgenticAiService — Transform Predictions into Personalized Health Advice
  *
- * Menyusun prompt terstruktur dari hasil prediksi ML dan data pasien,
- * lalu mengirimkannya ke Google Gemini 1.5 Flash untuk mendapatkan
- * 3 saran kesehatan yang actionable dan spesifik dalam format JSON.
+ * This service takes disease predictions from the machine learning model and patient data,
+ * then sends them to Google Gemini AI to generate personalized health recommendations.
  *
- * Flow:
- *   MlPredictionService::predict() → $mlPredictions
- *                                         ↓
- *   AgenticAiService::getHealthRecommendations($userData, $mlPredictions)
- *       → buildSystemPrompt()  → instruksi peran LLM (system_instruction)
- *       → buildUserPrompt()    → data pasien + risiko penyakit
- *       → callLlmApi()         → POST ke Gemini generateContent
- *                                         ↓
- *                            array JSON { success, recommendations[], model, ... }
+ * The complete flow works like this:
+ *   1. Patient Health Data Input (age, BMI, glucose, blood pressure, etc)
+ *   2. ML Service Prediction (get disease probabilities: heart disease, stroke, etc)
+ *   3. Format Data into Structured Prompts
+ *   4. Send to Google Gemini AI with system instructions
+ *   5. Receive 3 actionable health recommendations in JSON format
+ *   6. Return structured recommendations with priority levels to patient
  */
 class AgenticAiService
 {
-    /** Base URL endpoint Gemini generateContent */
+    /** Complete API endpoint URL for Google Gemini (includesmodel and API key) */
     private string $geminiEndpoint;
 
-    /** API Key Gemini dari config('services.gemini.key') */
+    /** Secret API key from Google Cloud Console - used to authenticate with Gemini API */
     private string $apiKey;
 
-    /** Nama model Gemini yang digunakan */
+    /** Which Gemini model to use (e.g., 'gemini-1.5-flash' for fast, cost-effective responses) */
     private string $model;
 
-    /** Timeout request dalam detik */
+    /** How long to wait for Gemini to respond before timing out (in seconds) */
     private int $timeout;
 
     public function __construct()
@@ -50,13 +47,16 @@ class AgenticAiService
         );
     }
 
-    // ─── Public API ────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════════
+    //  PUBLIC METHODS — These are the main ways to use this service
+    // ═══════════════════════════════════════════════════════════════════════════════
 
     /**
-     * Dapatkan rekomendasi kesehatan terstruktur dari Gemini berdasarkan
-     * data pengguna dan hasil prediksi ML.
+     * Main Entry Point: Get personalized health recommendations from Google Gemini AI
      *
-     * Ini adalah entry point utama yang baru menggantikan generateAdvice().
+     * Takes patient health data and machine learning disease predictions, then asks
+     * Google Gemini to generate 3 specific, actionable health recommendations.
+     * This is the primary method to use when you have both patient data and ML predictions.
      *
      * @param  array $userData       Data pasien: { age, gender, bmi, glucose, blood_pressure, ... }
      * @param  array $mlPredictions  Output dari MlPredictionService::predict():
@@ -87,11 +87,14 @@ class AgenticAiService
     }
 
     /**
-     * Alias lama — tetap tersedia agar controller yang sudah ada tidak perlu diubah.
+     * Backward Compatibility: Old method name that still works
+     * 
+     * If you have old code using generateAdvice(), it still works!
+     * But please migrate to getHealthRecommendations() for clearer naming.
      *
-     * @param  array $mlResult  Output dari MlPredictionService::predict()
-     * @param  array $userData  Data pasien
-     * @return array
+     * @param  array $mlResult  Disease predictions from MlPredictionService::predict()
+     * @param  array $userData  Patient health data (age, BMI, glucose, blood pressure, etc)
+     * @return array Health recommendations from Gemini
      */
     public function generateAdvice(array $mlResult, array $userData): array
     {
@@ -99,28 +102,30 @@ class AgenticAiService
     }
 
     /**
-     * Alias lama — tetap tersedia agar controller yang sudah ada tidak perlu diubah.
+     * Alternative Method Name: Also calls the main getHealthRecommendations()
+     * 
+     * This is another name for the same functionality. Use whichever makes
+     * most sense in your code context. Both do exactly the same thing.
      *
-     * @param  array $healthData  { age, gender, bmi, glucose, blood_pressure, ... }
-     * @param  array $mlResult    Output dari MlPredictionService::predict()
-     * @return array
+     * @param  array $healthData Patient vitals and metrics (age, gender, BMI, glucose, blood pressure)
+     * @param  array $mlResult Disease predictions from the ML model
+     * @return array Structured health recommendations with priorities
      */
     public function adviseFromHealthData(array $healthData, array $mlResult): array
     {
         return $this->getHealthRecommendations($healthData, $mlResult);
     }
 
-    // ─── Prompt Builders ───────────────────────────────────────────────────────
-
     /**
-     * Bangun System Prompt — menentukan peran dan aturan respons LLM.
+     * Build System Prompt: Tells Gemini its role and what rules to follow
      *
-     * Instruksi:
-     *  - Bertindak sebagai konsultan kesehatan profesional
-     *  - Berikan tepat 3 saran yang actionable dan spesifik
-     *  - Format terstruktur (Markdown numbered list)
-     *  - Selalu tambahkan disclaimer medis di akhir
-     *  - Respons dalam Bahasa Indonesia
+     * This is like giving Gemini "character instructions" that say:
+     *  - Act as a caring, experienced health consultant
+     *  - Always give exactly 3 recommendations (not more, not less)
+     *  - Make recommendations specific and actionable (patient can do them today)
+     *  - Always include a medical disclaimer at the end
+     *  - Respond in Indonesian, using simple language anyone can understand
+     *  - Never try to diagnose; only recommend prevention actions
      */
     private function buildSystemPrompt(): string
     {
@@ -164,34 +169,35 @@ PROMPT;
     }
 
     /**
-     * Bangun User Prompt — berisi data pasien dan hasil prediksi ML.
+     * Build User Prompt: The actual patient data and disease predictions to analyze
      *
-     * Struktur prompt:
-     *  [1] Profil pasien (usia, gender, BMI, glukosa, tekanan darah)
-     *  [2] Hasil prediksi probabilitas per penyakit + level risiko
-     *  [3] Penyakit dengan risiko tertinggi (prioritas utama saran)
-     *  [4] Instruksi eksplisit untuk format respons
+     * This prompt includes:
+     *  1. Patient Profile: Age, sex, BMI, blood glucose, blood pressure, cholesterol, heart rate
+     *  2. Disease Risk Table: Probability percentage for each of 5 diseases with risk levels
+     *  3. Highest Risk Disease: Which disease is the #1 concern for this patient
+     *  4. Clear Instructions: Tell Gemini to focus on the highest risk but consider all factors
      */
     private function buildUserPrompt(array $mlResult, array $userData): string
     {
-        // ── Format profil pasien ──────────────────────────────────────────────
+        // Extract and format patient health metrics for the prompt
         $age    = $userData['age']            ?? 'N/A';
-        $gender = ($userData['gender'] ?? 1) == 1 ? 'Laki-laki' : 'Perempuan';
+        $gender = ($userData['gender'] ?? 1) == 1 ? 'Male' : 'Female';
         $bmi    = number_format((float) ($userData['bmi'] ?? 0), 1);
         $glc    = number_format((float) ($userData['glucose'] ?? 0), 1);
         $bp     = $userData['blood_pressure'] ?? 'N/A';
         $chol   = isset($userData['cholesterol'])
             ? number_format((float) $userData['cholesterol'], 1) . ' mg/dL'
-            : 'Tidak diketahui';
-        $hr     = $userData['heart_rate'] ?? 'Tidak diketahui';
+            : 'Unknown';
+        $hr     = $userData['heart_rate'] ?? 'Unknown';
 
+        // Convert BMI to user-friendly category (underweight, normal, overweight, obese)
         $bmiCategory = $this->bmiCategory((float) ($userData['bmi'] ?? 0));
 
-        // ── Format tabel risiko penyakit ─────────────────────────────────────
+        // Create a nice formatted table of disease risks for Gemini to see
         $riskTable = $this->formatRiskTable($mlResult['predictions'] ?? []);
 
-        // ── Risiko tertinggi ──────────────────────────────────────────────────
-        $highestRisk  = $mlResult['highest_risk'] ?? 'Tidak diketahui';
+        // Find which disease has the highest risk (focus point for recommendations)
+        $highestRisk  = $mlResult['highest_risk'] ?? 'Unknown';
         $modelMode    = $mlResult['model_mode']   ?? 'unknown';
 
         return <<<PROMPT
@@ -224,7 +230,12 @@ PROMPT;
     }
 
     /**
-     * Format tabel prediksi risiko dari output MlPredictionService.
+     * Format Disease Risk Data as Markdown Table: Makes it easy for Gemini to read
+     * 
+     * Converts the disease prediction data into a nice formatted table that shows:
+     *  - Disease name
+     *  - Probability percentage
+     *  - Risk level (Low/Medium/High with emoji indicators)
      */
     private function formatRiskTable(array $predictions): string
     {
@@ -262,46 +273,57 @@ PROMPT;
     }
 
     /**
-     * Kategorisasi BMI dalam Bahasa Indonesia.
+     * Convert BMI number into user-friendly category
+     * 
+     * This helps patients understand their weight status without medical jargon:
+     *  - Under 18.5: Underweight (too thin)
+     *  - 18.5-25: Normal (healthy weight range)
+     *  - 25-30: Overweight (above healthy range)
+     *  - Over 30: Obese (significantly above healthy range)
      */
     private function bmiCategory(float $bmi): string
     {
         return match(true) {
-            $bmi < 18.5 => 'Kurus',
-            $bmi < 25.0 => 'Normal',
-            $bmi < 30.0 => 'Kelebihan Berat Badan',
-            default     => 'Obesitas',
+            $bmi < 18.5 => 'Underweight',
+            $bmi < 25.0 => 'Normal Weight',
+            $bmi < 30.0 => 'Overweight',
+            default     => 'Obese',
         };
     }
 
-    // ─── Gemini API Call ───────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════════
+    //  GEMINI API COMMUNICATION — Send prompts to Google Gemini and parse responses
+    // ═══════════════════════════════════════════════════════════════════════════════
 
     /**
-     * Kirim prompt ke Google Gemini generateContent API.
+     * Send Prompts to Google Gemini AI and Get Health Recommendations
      *
-     * Endpoint : POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={API_KEY}
-     * Dokumen  : https://ai.google.dev/api/generate-content
+     * This method makes an HTTP POST request to Google Gemini API with:
+     *  - System Prompt: Instructions that define Gemini's role (what it should act like)
+     *  - User Prompt: The actual patient data and disease risks for analysis
      *
-     * Payload menggunakan format native Gemini:
-     *   - system_instruction → instruksi peran LLM
-     *   - contents           → pesan pengguna
-     *   - generationConfig   → suhu, token, mime type JSON
+     * Gemini responds with structured JSON containing 3 health recommendations.
+     * If anything goes wrong, we fall back to pre-written static advice.
      *
-     * @param  string $systemPrompt  Instruksi peran LLM (system_instruction)
-     * @param  string $userPrompt    Data pasien + hasil prediksi ML
-     * @return array
+     * API Documentation: https://ai.google.dev/api/generate-content
+     *
+     * @param  string $systemPrompt The role definition and rules for Gemini to follow
+     * @param  string $userPrompt The patient data and disease risks to analyze
+     * @return array Result with recommendations or fallback advice
      */
     private function callLlmApi(string $systemPrompt, string $userPrompt): array
     {
         $payload = [
-            // Instruksi sistem — memberi peran dan aturan ke model
+            // System Instruction: Tells Gemini its role and rules
+            // Think of this as: "Here's how you should act when responding"
             'system_instruction' => [
                 'parts' => [
                     ['text' => $systemPrompt],
                 ],
             ],
 
-            // Pesan pengguna — data pasien + prediksi ML
+            // User Message: The actual patient data and disease predictions
+            // This is the question we're asking Gemini: "Given this patient, what should we recommend?"
             'contents' => [
                 [
                     'role'  => 'user',
@@ -311,12 +333,17 @@ PROMPT;
                 ],
             ],
 
-            // Konfigurasi generasi
+            // Generation Settings: Control how Gemini thinks and responds
             'generationConfig' => [
-                'temperature'     => 0.7,              // Cukup kreatif, tetap konsisten
-                'maxOutputTokens' => 1024,             // ~600–700 kata
+                // Temperature: How creative vs. factual the response should be
+                // 0.7 = balanced (not too random, not too boring)
+                'temperature'     => 0.7,
+                // Maximum tokens: Roughly how long the response can be (~500-700 words)
+                'maxOutputTokens' => 1024,
+                // Top P: How diverse the word choices should be (0.9 = pretty diverse)
                 'topP'            => 0.9,
-                'responseMimeType' => 'application/json', // Minta respons JSON langsung
+                // Response Format: Ask Gemini to respond with clean JSON (not mixed text)
+                'responseMimeType' => 'application/json',
             ],
         ];
 
@@ -326,7 +353,7 @@ PROMPT;
                 ->asJson()
                 ->post($this->geminiEndpoint, $payload);
 
-            // ── HTTP Error ────────────────────────────────────────────────────
+            // Check if the HTTP request failed (4xx or 5xx status code)
             if ($response->failed()) {
                 $statusCode = $response->status();
                 $errorBody  = $response->json('error.message', $response->body());
@@ -342,8 +369,9 @@ PROMPT;
 
             $data = $response->json();
 
-            // ── Ekstrak teks dari struktur respons Gemini ─────────────────────
-            // Struktur: candidates[0].content.parts[0].text
+            // Extract the actual text response from Gemini's response structure
+            // Gemini wraps its response in: candidates[0].content.parts[0].text
+            // So we navigate through this nested structure to get the recommendations
             $rawText = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
             if (empty($rawText)) {
@@ -351,19 +379,21 @@ PROMPT;
                 return $this->staticFallbackAdvice(200, 'Empty response from Gemini');
             }
 
-            // ── Parse JSON terstruktur dari respons Gemini ────────────────────
+            // Parse the JSON response from Gemini
+            // We ask Gemini to respond in JSON format, so we decode it here
             $parsed          = json_decode($rawText, true);
             $recommendations = $parsed['recommendations'] ?? [];
             $disclaimer      = $parsed['disclaimer'] ?? '';
 
-            // Jika JSON tidak valid / tidak sesuai skema, gunakan teks mentah sebagai advice
+            // If Gemini didn't return valid JSON or recommendations, we'll log it and use raw text
             if (empty($recommendations)) {
                 Log::warning('[AgenticAI] Gagal parse JSON rekomendasi, menggunakan teks mentah', [
                     'raw_text' => substr($rawText, 0, 300),
                 ]);
             }
 
-            // ── Token usage ───────────────────────────────────────────────────
+            // Track how many tokens (words) were used
+            // This helps us monitor API costs and optimize prompts
             $usageMeta = $data['usageMetadata'] ?? [];
 
             Log::info('[AgenticAI] Rekomendasi berhasil digenerate via Gemini', [
@@ -393,11 +423,16 @@ PROMPT;
         }
     }
 
-    // ─── Fallback ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════════
+    //  FALLBACK ADVICE — When Gemini API is down or fails
+    // ═══════════════════════════════════════════════════════════════════════════════
 
     /**
-     * Saran statis jika LLM API tidak tersedia / gagal.
-     * Memastikan pengguna tetap mendapat output yang berguna.
+     * Fallback Static Advice: If Gemini API fails, we still help the patient
+     * 
+     * We pre-wrote some sensible health recommendations that are always good advice.
+     * When Gemini is unavailable, we show these generic-but-helpful recommendations
+     * instead of showing the patient an error message.
      *
      * @param  int    $statusCode HTTP status code dari LLM API
      * @param  string $errorMsg   Pesan error untuk logging

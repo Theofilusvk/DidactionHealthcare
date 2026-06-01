@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * HealthRecordDatasetSeeder
  *
- * Mengimpor data dari file CSV dataset ke tabel health_records.
- * Data ini akan digunakan sebagai training data untuk model XGBoost.
+ * Kita butuh data untuk melatih model XGBoost. Karena awalnya data cuma ada di CSV,
+ * seeder ini tugasnya mindahin (import) data-data dari CSV itu masuk ke tabel health_records.
  *
  * Dataset yang diimpor:
  *   - heart.csv           → label: heart_disease_risk
@@ -43,9 +43,9 @@ class HealthRecordDatasetSeeder extends Seeder
         $this->command->info('╚══════════════════════════════════════════════════╝');
         $this->command->info('');
 
-        // Truncate dulu agar tidak duplikat
+        // Bersihin tabelnya dulu biar datanya nggak dobel-dobel
         DB::table('health_records')->truncate();
-        $this->command->line('  → Tabel health_records dikosongkan');
+        $this->command->line('  → Tabel health_records udah dikosongkan nih');
 
         $total = 0;
 
