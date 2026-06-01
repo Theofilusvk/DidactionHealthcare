@@ -180,9 +180,9 @@ class ModelBundle:
     Wrapper yang memegang model yang sudah di-load dan menyediakan
     method predict() yang unified.
 
-    Mendukung dua format file .pth:
-      (A) State-dict saja  → di-load ke MultiDiseaseNN
-      (B) Full bundle dict → berisi 'model_state', 'scaler_mean', 'scaler_std'
+    Mendukung format:
+      (A) PyTorch .pth (multi-disease model)
+      (B) XGBoost .pkl (individual models per disease)
     """
 
     def __init__(self) -> None:
@@ -191,63 +191,87 @@ class ModelBundle:
         self.scaler_std:   np.ndarray | None     = None
         self.device:       torch.device          = torch.device("cpu")
         self.loaded:       bool                  = False
-        self.mode:         str                   = "none"  # "pytorch" | "fallback"
+        self.mode:         str                   = "none"  # "pytorch" | "xgboost" | "fallback"
+        self.xgb_models:   dict                  = {}
 
     # ── Loader ────────────────────────────────────────────────────────────────
     def load(self, model_path: Path) -> None:
-        if not model_path.exists():
-            log.warning(
-                f"File model tidak ditemukan di: {model_path}\n"
-                "  → Menggunakan mode FALLBACK (probabilitas dummy).\n"
-                "  → Jalankan notebook Models/DidactionModel_01.ipynb dan export .pth untuk aktivasi penuh."
-            )
-            self.loaded = False
-            self.mode   = "fallback"
-            return
-
-        log.info(f"Memuat model dari: {model_path}")
-        checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
-
-        self.model = MultiDiseaseNN(
-            num_features=NUM_FEATURES,
-            num_diseases=NUM_DISEASES,
-        )
-
-        # ── Format A: state_dict langsung ────────────────────────────────────
-        if isinstance(checkpoint, dict) and "model_state" in checkpoint:
-            self.model.load_state_dict(checkpoint["model_state"])
-            # Scaler opsional — jika tersimpan di checkpoint
-            self.scaler_mean = np.array(
-                checkpoint.get("scaler_mean", [0.0] * NUM_FEATURES), dtype=np.float32
-            )
-            self.scaler_std = np.array(
-                checkpoint.get("scaler_std", [1.0] * NUM_FEATURES), dtype=np.float32
-            )
-            log.info("Checkpoint format: full-bundle (state + scaler)")
-
-        # ── Format B: state_dict murni ────────────────────────────────────────
-        elif isinstance(checkpoint, dict):
+        # Coba muat model PyTorch utama
+        if model_path.exists():
+            log.info(f"Memuat model PyTorch dari: {model_path}")
             try:
-                self.model.load_state_dict(checkpoint)
-                self.scaler_mean = np.zeros(NUM_FEATURES, dtype=np.float32)
-                self.scaler_std  = np.ones(NUM_FEATURES,  dtype=np.float32)
-                log.info("Checkpoint format: state-dict murni")
-            except Exception as e:
-                raise RuntimeError(
-                    f"Gagal load state_dict: {e}\n"
-                    "Pastikan arsitektur MultiDiseaseNN sesuai dengan bobot yang disimpan."
-                ) from e
-        else:
-            raise TypeError(
-                f"Format checkpoint tidak dikenal: {type(checkpoint)}. "
-                "Harap simpan sebagai state_dict atau bundle dict."
-            )
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
 
-        self.model.to(self.device)
-        self.model.eval()
-        self.loaded = True
-        self.mode   = "pytorch"
-        log.info(f"Model berhasil dimuat. Mode: {self.mode}")
+                self.model = MultiDiseaseNN(
+                    num_features=NUM_FEATURES,
+                    num_diseases=NUM_DISEASES,
+                )
+
+                # ── Format A: state_dict langsung ────────────────────────────────────
+                if isinstance(checkpoint, dict) and "model_state" in checkpoint:
+                    self.model.load_state_dict(checkpoint["model_state"])
+                    # Scaler opsional — jika tersimpan di checkpoint
+                    self.scaler_mean = np.array(
+                        checkpoint.get("scaler_mean", [0.0] * NUM_FEATURES), dtype=np.float32
+                    )
+                    self.scaler_std = np.array(
+                        checkpoint.get("scaler_std", [1.0] * NUM_FEATURES), dtype=np.float32
+                    )
+                    log.info("Checkpoint format: full-bundle (state + scaler)")
+
+                # ── Format B: state_dict murni ────────────────────────────────────────
+                elif isinstance(checkpoint, dict):
+                    self.model.load_state_dict(checkpoint)
+                    self.scaler_mean = np.zeros(NUM_FEATURES, dtype=np.float32)
+                    self.scaler_std  = np.ones(NUM_FEATURES,  dtype=np.float32)
+                    log.info("Checkpoint format: state-dict murni")
+                else:
+                    raise TypeError(
+                        f"Format checkpoint tidak dikenal: {type(checkpoint)}. "
+                        "Harap simpan sebagai state_dict atau bundle dict."
+                    )
+
+                self.model.to(self.device)
+                self.model.eval()
+                self.loaded = True
+                self.mode   = "pytorch"
+                log.info(f"Model PyTorch berhasil dimuat. Mode: {self.mode}")
+                return
+            except Exception as e:
+                log.error(f"Gagal memuat model PyTorch: {e}. Mencoba memuat model XGBoost...")
+
+        # Jika PyTorch model tidak ada, coba muat model-model XGBoost dari python-ml-service/models
+        xgb_dir = Path(__file__).resolve().parent / "models"
+        xgb_files = {
+            "heart_disease": xgb_dir / "heart_disease_model.pkl",
+            "stroke":        xgb_dir / "stroke_model.pkl",
+            "diabetes":      xgb_dir / "diabetes_model.pkl",
+            "hypertension":  xgb_dir / "hypertension_model.pkl",
+            "ckd":           xgb_dir / "ckd_model.pkl",
+        }
+
+        all_xgb_exist = all(p.exists() for p in xgb_files.values())
+        if all_xgb_exist:
+            log.info("Memuat model-model XGBoost (.pkl)...")
+            try:
+                import pickle
+                for disease, path in xgb_files.items():
+                    with open(path, "rb") as f:
+                        self.xgb_models[disease] = pickle.load(f)
+                self.loaded = True
+                self.mode   = "xgboost"
+                log.info(f"Semua model XGBoost berhasil dimuat. Mode: {self.mode}")
+                return
+            except Exception as e:
+                log.error(f"Gagal memuat model-model XGBoost: {e}")
+
+        # Jika tidak ada model yang bisa dimuat
+        log.warning(
+            f"File model tidak ditemukan di: {model_path} maupun model XGBoost (.pkl) di {xgb_dir}\n"
+            "  → Menggunakan mode FALLBACK (probabilitas dummy)."
+        )
+        self.loaded = False
+        self.mode   = "fallback"
 
     # ── Inference ─────────────────────────────────────────────────────────────
     def predict(self, feature_vector: list[float]) -> dict[str, float]:
@@ -259,6 +283,8 @@ class ModelBundle:
         """
         if self.mode == "pytorch" and self.loaded and self.model is not None:
             return self._predict_pytorch(feature_vector)
+        elif self.mode == "xgboost" and self.loaded and self.xgb_models:
+            return self._predict_xgboost(feature_vector)
         else:
             return self._predict_fallback(feature_vector)
 
@@ -276,6 +302,90 @@ class ModelBundle:
 
         probs_np = probs.squeeze(0).cpu().numpy()      # (5,)
         return {label: float(probs_np[i]) for i, label in enumerate(DISEASE_LABELS)}
+
+    def _predict_xgboost(self, feature_vector: list[float]) -> dict[str, float]:
+        """Inference dengan model-model XGBoost (.pkl)."""
+        import pandas as pd
+        
+        # Mapping dari INPUT_FEATURES [age, gender, bmi, glucose, blood_pressure, cholesterol, heart_rate]
+        age, gender, bmi, glucose, blood_pressure, cholesterol, heart_rate = feature_vector
+
+        results = {}
+
+        # 1. Heart Disease
+        # Fitur: ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
+        if "heart_disease" in self.xgb_models:
+            model = self.xgb_models["heart_disease"]
+            fbs_val = 1.0 if glucose > 120.0 else 0.0
+            heart_df = pd.DataFrame([{
+                'age': age,
+                'sex': gender,
+                'cp': 0.0,
+                'trestbps': blood_pressure,
+                'chol': cholesterol,
+                'fbs': fbs_val,
+                'restecg': 0.0,
+                'thalach': heart_rate,
+                'exang': 0.0,
+                'oldpeak': 0.0,
+                'slope': 1.0,
+                'ca': 0.0,
+                'thal': 2.0
+            }])
+            results["heart_disease"] = float(model.predict_proba(heart_df)[0][1])
+
+        # 2. Stroke
+        # Fitur: ['age', 'avg_glucose_level', 'bmi']
+        if "stroke" in self.xgb_models:
+            model = self.xgb_models["stroke"]
+            stroke_df = pd.DataFrame([{
+                'age': age,
+                'avg_glucose_level': glucose,
+                'bmi': bmi
+            }])
+            results["stroke"] = float(model.predict_proba(stroke_df)[0][1])
+
+        # 3. Diabetes
+        # Fitur: ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age']
+        if "diabetes" in self.xgb_models:
+            model = self.xgb_models["diabetes"]
+            diab_df = pd.DataFrame([{
+                'Pregnancies': 0.0,
+                'Glucose': glucose,
+                'BloodPressure': blood_pressure,
+                'SkinThickness': 23.0,
+                'Insulin': 30.0,
+                'BMI': bmi,
+                'DiabetesPedigreeFunction': 0.37,
+                'Age': age
+            }])
+            results["diabetes"] = float(model.predict_proba(diab_df)[0][1])
+
+        # 4. Hypertension
+        # Fitur: ['Age', 'Systolic_BP', 'Diastolic_BP', 'Glucose', 'BMI']
+        if "hypertension" in self.xgb_models:
+            model = self.xgb_models["hypertension"]
+            hyper_df = pd.DataFrame([{
+                'Age': age,
+                'Systolic_BP': blood_pressure,
+                'Diastolic_BP': 80.0,
+                'Glucose': glucose,
+                'BMI': bmi
+            }])
+            results["hypertension"] = float(model.predict_proba(hyper_df)[0][1])
+
+        # 5. CKD
+        # Fitur: ['age', 'avg_glucose_level', 'bmi']
+        if "ckd" in self.xgb_models:
+            model = self.xgb_models["ckd"]
+            ckd_df = pd.DataFrame([{
+                'age': age,
+                'avg_glucose_level': glucose,
+                'bmi': bmi
+            }])
+            results["ckd"] = float(model.predict_proba(ckd_df)[0][1])
+
+        return results
 
     def _predict_fallback(self, feature_vector: list[float]) -> dict[str, float]:
         """
