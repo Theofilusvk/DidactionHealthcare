@@ -41,7 +41,14 @@ return [
         'timeout' => env('ML_SERVICE_TIMEOUT', 30),
     ],
 
-    // ─── LLM / Agentic AI (OpenAI-compatible) ────────────────────────────────
+    // ─── LLM / Agentic AI (Google Gemini) ────────────────────────────────────
+    'gemini' => [
+        'key'     => env('GEMINI_API_KEY'),
+        'model'   => env('GEMINI_MODEL', 'gemini-1.5-flash'),
+        'timeout' => env('GEMINI_TIMEOUT', 60),
+    ],
+
+    // ─── LLM / Agentic AI (OpenAI-compatible) — legacy, tidak lagi digunakan ──
     'openai' => [
         'api_key'  => env('OPENAI_API_KEY'),
         'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),

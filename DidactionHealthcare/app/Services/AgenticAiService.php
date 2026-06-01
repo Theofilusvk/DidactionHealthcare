@@ -10,28 +10,28 @@ use Illuminate\Support\Facades\Log;
  * AgenticAiService
  *
  * Menyusun prompt terstruktur dari hasil prediksi ML dan data pasien,
- * lalu mengirimkannya ke LLM (OpenAI-compatible API) untuk mendapatkan
- * 3 saran kesehatan yang actionable dan spesifik.
+ * lalu mengirimkannya ke Google Gemini 1.5 Flash untuk mendapatkan
+ * 3 saran kesehatan yang actionable dan spesifik dalam format JSON.
  *
  * Flow:
- *   MlPredictionService::predict() → $mlResult
+ *   MlPredictionService::predict() → $mlPredictions
  *                                         ↓
- *   AgenticAiService::generateAdvice($mlResult, $userData)
- *       → buildSystemPrompt()  → instruksi peran LLM
+ *   AgenticAiService::getHealthRecommendations($userData, $mlPredictions)
+ *       → buildSystemPrompt()  → instruksi peran LLM (system_instruction)
  *       → buildUserPrompt()    → data pasien + risiko penyakit
- *       → callLlmApi()         → POST ke OpenAI /chat/completions
+ *       → callLlmApi()         → POST ke Gemini generateContent
  *                                         ↓
- *                            string saran (teks / Markdown)
+ *                            array JSON { success, recommendations[], model, ... }
  */
 class AgenticAiService
 {
-    /** Endpoint dasar LLM (OpenAI atau compatible, e.g. Groq, OpenRouter, Ollama) */
-    private string $baseUrl;
+    /** Base URL endpoint Gemini generateContent */
+    private string $geminiEndpoint;
 
-    /** API Key untuk autentikasi */
+    /** API Key Gemini dari config('services.gemini.key') */
     private string $apiKey;
 
-    /** Nama model yang akan dipanggil */
+    /** Nama model Gemini yang digunakan */
     private string $model;
 
     /** Timeout request dalam detik */
@@ -39,50 +39,67 @@ class AgenticAiService
 
     public function __construct()
     {
-        $this->baseUrl = rtrim((string) config('services.openai.base_url', 'https://api.openai.com/v1'), '/');
-        $this->apiKey  = (string) config('services.openai.api_key', '');
-        $this->model   = (string) config('services.openai.model', 'gpt-4o-mini');
-        $this->timeout = (int)    config('services.openai.timeout', 60);
+        $this->model   = (string) config('services.gemini.model',   'gemini-1.5-flash');
+        $this->timeout = (int)    config('services.gemini.timeout', 60);
+        $this->apiKey  = (string) config('services.gemini.key',     '');
+
+        $this->geminiEndpoint = sprintf(
+            'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s',
+            $this->model,
+            $this->apiKey
+        );
     }
 
     // ─── Public API ────────────────────────────────────────────────────────────
 
     /**
-     * Generate 3 saran kesehatan actionable berdasarkan hasil prediksi ML.
+     * Dapatkan rekomendasi kesehatan terstruktur dari Gemini berdasarkan
+     * data pengguna dan hasil prediksi ML.
      *
-     * @param  array $mlResult  Output dari MlPredictionService::predict()
-     *                          Struktur: { success, model_mode, predictions, highest_risk }
-     * @param  array $userData  Data tambahan pasien:
-     *                          { age, gender, bmi, glucose, blood_pressure, name? }
+     * Ini adalah entry point utama yang baru menggantikan generateAdvice().
+     *
+     * @param  array $userData       Data pasien: { age, gender, bmi, glucose, blood_pressure, ... }
+     * @param  array $mlPredictions  Output dari MlPredictionService::predict():
+     *                               { success, model_mode, predictions, highest_risk }
      *
      * @return array{
      *     success: bool,
-     *     advice: string,
+     *     recommendations: array<int, array{ title: string, description: string, priority: string }>,
+     *     advice: string,          // teks mentah dari Gemini (fallback / kompatibilitas)
      *     model: string,
-     *     prompt_tokens?: int,
-     *     completion_tokens?: int,
+     *     prompt_token_count?: int,
+     *     candidates_token_count?: int,
      *     error?: string
      * }
      */
-    public function generateAdvice(array $mlResult, array $userData): array
+    public function getHealthRecommendations(array $userData, array $mlPredictions): array
     {
-        // Susun prompt
         $systemPrompt = $this->buildSystemPrompt();
-        $userPrompt   = $this->buildUserPrompt($mlResult, $userData);
+        $userPrompt   = $this->buildUserPrompt($mlPredictions, $userData);
 
-        Log::info('[AgenticAI] Mengirim prompt ke LLM', [
-            'model'          => $this->model,
-            'highest_risk'   => $mlResult['highest_risk'] ?? '-',
-            'prompt_preview' => substr($userPrompt, 0, 200) . '...',
+        Log::info('[AgenticAI] Mengirim request ke Gemini', [
+            'model'        => $this->model,
+            'highest_risk' => $mlPredictions['highest_risk'] ?? '-',
+            'user_age'     => $userData['age'] ?? 'N/A',
         ]);
 
         return $this->callLlmApi($systemPrompt, $userPrompt);
     }
 
     /**
-     * Versi sederhana — hanya terima HealthRecord-like array.
-     * Cocok untuk pemanggilan langsung dari controller tanpa perlu
-     * memformat ulang data.
+     * Alias lama — tetap tersedia agar controller yang sudah ada tidak perlu diubah.
+     *
+     * @param  array $mlResult  Output dari MlPredictionService::predict()
+     * @param  array $userData  Data pasien
+     * @return array
+     */
+    public function generateAdvice(array $mlResult, array $userData): array
+    {
+        return $this->getHealthRecommendations($userData, $mlResult);
+    }
+
+    /**
+     * Alias lama — tetap tersedia agar controller yang sudah ada tidak perlu diubah.
      *
      * @param  array $healthData  { age, gender, bmi, glucose, blood_pressure, ... }
      * @param  array $mlResult    Output dari MlPredictionService::predict()
@@ -90,7 +107,7 @@ class AgenticAiService
      */
     public function adviseFromHealthData(array $healthData, array $mlResult): array
     {
-        return $this->generateAdvice($mlResult, $healthData);
+        return $this->getHealthRecommendations($healthData, $mlResult);
     }
 
     // ─── Prompt Builders ───────────────────────────────────────────────────────
@@ -108,32 +125,41 @@ class AgenticAiService
     private function buildSystemPrompt(): string
     {
         return <<<PROMPT
-Anda adalah seorang konsultan kesehatan AI yang berpengalaman dan empatik.
-Tugas Anda adalah menganalisis hasil skrining kesehatan pasien dan memberikan saran yang spesifik, actionable, dan berbasis bukti ilmiah.
+Anda adalah asisten kesehatan AI proaktif yang berpengalaman dan empatik.
+Tugas Anda adalah menganalisis hasil skrining kesehatan pasien dan memberikan rekomendasi tindakan perbaikan yang spesifik, actionable, dan berbasis bukti ilmiah.
 
-## Aturan Respons
+## Format Respons WAJIB
 
-1. **Berikan TEPAT 3 saran** yang paling relevan dan actionable berdasarkan penyakit dengan risiko tertinggi.
-2. **Format wajib** — gunakan Markdown numbered list:
-   ```
-   ### Saran 1: [Judul Singkat]
-   [Penjelasan detail 2–3 kalimat. Sertakan angka/target spesifik bila memungkinkan.]
-   
-   ### Saran 2: [Judul Singkat]
-   [Penjelasan...]
-   
-   ### Saran 3: [Judul Singkat]
-   [Penjelasan...]
-   ```
-3. **Spesifik dan personal** — sesuaikan saran dengan usia, BMI, kadar glukosa, dan tekanan darah pasien yang diberikan.
-4. **Actionable** — setiap saran harus bisa langsung dilakukan (bukan saran umum seperti "hidup sehat").
-5. **Bahasa Indonesia** yang jelas dan mudah dipahami oleh orang awam.
-6. **Disclaimer** — tambahkan satu kalimat disclaimer di akhir bahwa saran ini bukan pengganti konsultasi dokter.
+Anda HARUS mengembalikan respons HANYA dalam format JSON berikut — tanpa teks tambahan, tanpa markdown, tanpa komentar:
+
+```json
+{
+  "recommendations": [
+    {
+      "title": "Judul singkat saran (maks 8 kata)",
+      "description": "Penjelasan detail 2–3 kalimat. Sertakan angka/target spesifik bila memungkinkan.",
+      "priority": "Tinggi" | "Sedang" | "Rendah"
+    },
+    { ... },
+    { ... }
+  ],
+  "disclaimer": "Satu kalimat disclaimer bahwa saran ini bukan pengganti konsultasi dokter."
+}
+```
+
+## Aturan Konten
+
+1. Berikan **TEPAT 3 saran** tindakan perbaikan yang paling relevan berdasarkan risiko tertinggi.
+2. Sesuaikan saran dengan usia, BMI, glukosa, dan tekanan darah pasien secara **personal dan spesifik**.
+3. Setiap saran harus **langsung dapat dilakukan** (bukan saran umum).
+4. Gunakan **Bahasa Indonesia** yang jelas dan mudah dipahami orang awam.
+5. Tetapkan `priority` berdasarkan urgensi klinis: "Tinggi" untuk faktor risiko dominan.
 
 ## Hal yang DILARANG
 - Mendiagnosis penyakit secara definitif
 - Merekomendasikan obat-obatan spesifik dengan dosis
 - Menggunakan bahasa yang menakut-nakuti pasien
+- Menambahkan teks di luar objek JSON
 PROMPT;
     }
 
@@ -248,86 +274,118 @@ PROMPT;
         };
     }
 
-    // ─── LLM API Call ──────────────────────────────────────────────────────────
+    // ─── Gemini API Call ───────────────────────────────────────────────────────
 
     /**
-     * Kirim prompt ke OpenAI Chat Completions API.
+     * Kirim prompt ke Google Gemini generateContent API.
      *
-     * Endpoint: POST {baseUrl}/chat/completions
-     * Format:   OpenAI-compatible (bekerja juga dengan Groq, OpenRouter, Ollama, dll.)
+     * Endpoint : POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={API_KEY}
+     * Dokumen  : https://ai.google.dev/api/generate-content
      *
-     * @param  string $systemPrompt  Instruksi peran LLM
+     * Payload menggunakan format native Gemini:
+     *   - system_instruction → instruksi peran LLM
+     *   - contents           → pesan pengguna
+     *   - generationConfig   → suhu, token, mime type JSON
+     *
+     * @param  string $systemPrompt  Instruksi peran LLM (system_instruction)
      * @param  string $userPrompt    Data pasien + hasil prediksi ML
      * @return array
      */
     private function callLlmApi(string $systemPrompt, string $userPrompt): array
     {
-        $endpoint = "{$this->baseUrl}/chat/completions";
-
         $payload = [
-            'model'       => $this->model,
-            'messages'    => [
-                [
-                    'role'    => 'system',
-                    'content' => $systemPrompt,
-                ],
-                [
-                    'role'    => 'user',
-                    'content' => $userPrompt,
+            // Instruksi sistem — memberi peran dan aturan ke model
+            'system_instruction' => [
+                'parts' => [
+                    ['text' => $systemPrompt],
                 ],
             ],
-            'temperature'     => 0.7,   // Cukup kreatif tapi tetap konsisten
-            'max_tokens'      => 1024,  // ~600–700 kata saran
-            'top_p'           => 0.9,
-            'frequency_penalty' => 0.3, // Kurangi pengulangan kata
+
+            // Pesan pengguna — data pasien + prediksi ML
+            'contents' => [
+                [
+                    'role'  => 'user',
+                    'parts' => [
+                        ['text' => $userPrompt],
+                    ],
+                ],
+            ],
+
+            // Konfigurasi generasi
+            'generationConfig' => [
+                'temperature'     => 0.7,              // Cukup kreatif, tetap konsisten
+                'maxOutputTokens' => 1024,             // ~600–700 kata
+                'topP'            => 0.9,
+                'responseMimeType' => 'application/json', // Minta respons JSON langsung
+            ],
         ];
 
         try {
-            $response = Http::withToken($this->apiKey)
-                ->timeout($this->timeout)
+            $response = Http::timeout($this->timeout)
                 ->acceptJson()
-                ->post($endpoint, $payload);
+                ->asJson()
+                ->post($this->geminiEndpoint, $payload);
 
             // ── HTTP Error ────────────────────────────────────────────────────
             if ($response->failed()) {
                 $statusCode = $response->status();
                 $errorBody  = $response->json('error.message', $response->body());
 
-                Log::error('[AgenticAI] LLM API error', [
+                Log::error('[AgenticAI] Gemini API error', [
                     'status'   => $statusCode,
-                    'endpoint' => $endpoint,
+                    'endpoint' => $this->geminiEndpoint,
                     'error'    => $errorBody,
                 ]);
 
-                // Berikan saran fallback statis jika API gagal
                 return $this->staticFallbackAdvice($statusCode, (string) $errorBody);
             }
 
-            $data    = $response->json();
-            $content = $data['choices'][0]['message']['content'] ?? null;
+            $data = $response->json();
 
-            if (empty($content)) {
-                Log::warning('[AgenticAI] LLM merespons kosong', ['response' => $data]);
-                return $this->staticFallbackAdvice(200, 'Empty response from LLM');
+            // ── Ekstrak teks dari struktur respons Gemini ─────────────────────
+            // Struktur: candidates[0].content.parts[0].text
+            $rawText = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+            if (empty($rawText)) {
+                Log::warning('[AgenticAI] Gemini merespons kosong', ['response' => $data]);
+                return $this->staticFallbackAdvice(200, 'Empty response from Gemini');
             }
 
-            Log::info('[AgenticAI] Saran berhasil digenerate', [
-                'model'             => $data['model'] ?? $this->model,
-                'prompt_tokens'     => $data['usage']['prompt_tokens']     ?? 0,
-                'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
+            // ── Parse JSON terstruktur dari respons Gemini ────────────────────
+            $parsed          = json_decode($rawText, true);
+            $recommendations = $parsed['recommendations'] ?? [];
+            $disclaimer      = $parsed['disclaimer'] ?? '';
+
+            // Jika JSON tidak valid / tidak sesuai skema, gunakan teks mentah sebagai advice
+            if (empty($recommendations)) {
+                Log::warning('[AgenticAI] Gagal parse JSON rekomendasi, menggunakan teks mentah', [
+                    'raw_text' => substr($rawText, 0, 300),
+                ]);
+            }
+
+            // ── Token usage ───────────────────────────────────────────────────
+            $usageMeta = $data['usageMetadata'] ?? [];
+
+            Log::info('[AgenticAI] Rekomendasi berhasil digenerate via Gemini', [
+                'model'                  => $this->model,
+                'prompt_token_count'     => $usageMeta['promptTokenCount']     ?? 0,
+                'candidates_token_count' => $usageMeta['candidatesTokenCount'] ?? 0,
+                'recommendations_count'  => count($recommendations),
             ]);
 
             return [
-                'success'           => true,
-                'advice'            => $content,
-                'model'             => $data['model'] ?? $this->model,
-                'prompt_tokens'     => $data['usage']['prompt_tokens']     ?? 0,
-                'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
+                'success'                => true,
+                'recommendations'        => $recommendations,   // array JSON terstruktur
+                'disclaimer'             => $disclaimer,
+                'advice'                 => $rawText,           // teks mentah (kompatibilitas)
+                'model'                  => $this->model,
+                'prompt_token_count'     => $usageMeta['promptTokenCount']     ?? 0,
+                'candidates_token_count' => $usageMeta['candidatesTokenCount'] ?? 0,
             ];
 
         } catch (ConnectionException $e) {
-            Log::error('[AgenticAI] Tidak dapat terhubung ke LLM API', [
-                'endpoint' => $endpoint,
+            Log::error('[AgenticAI] Tidak dapat terhubung ke Gemini API', [
+                'endpoint' => $this->geminiEndpoint,
                 'error'    => $e->getMessage(),
             ]);
 

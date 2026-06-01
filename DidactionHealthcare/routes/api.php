@@ -11,5 +11,6 @@ Route::get('/health', function () {
 // ── Disease Prediction Endpoints ────────────────────────────────────────────
 Route::prefix('predict')->group(function () {
     Route::get('/example', [PredictionController::class, 'example']);
-    Route::post('/', [PredictionController::class, 'predict']);
+    Route::get('/status',  [PredictionController::class, 'status']);
+    Route::post('/',       [PredictionController::class, 'predict']);
 });

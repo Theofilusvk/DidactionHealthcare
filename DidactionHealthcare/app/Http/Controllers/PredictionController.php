@@ -2,97 +2,177 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\DiseaseAnalysisService;
-use App\Services\HealthAdviceService;
+use App\Services\MlPredictionService;
+use App\Services\AgenticAiService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * PredictionController
+ *
+ * Menerima input kesehatan dari pengguna, lalu:
+ *   1. Mengirim ke MlPredictionService → FastAPI (XGBoost trained on CSV datasets)
+ *   2. Mengirim hasil prediksi ke AgenticAiService → Gemini API untuk saran
+ *
+ * Arsitektur:
+ *   Input User → [PredictionController]
+ *                    ↓
+ *              MlPredictionService
+ *                    ↓ POST /predict
+ *              FastAPI Python (XGBoost)   ← trained on: heart.csv, diabetes.csv,
+ *                    ↓                       stroke.csv, hypertension_dataset.csv
+ *              Probabilitas 5 Penyakit
+ *                    ↓
+ *              AgenticAiService
+ *                    ↓ POST Gemini API
+ *              3 Rekomendasi Kesehatan (JSON)
+ *                    ↓
+ *              Response ke Frontend
+ */
 class PredictionController extends Controller
 {
-    protected DiseaseAnalysisService $analysisService;
-    protected HealthAdviceService $adviceService;
-
     public function __construct(
-        DiseaseAnalysisService $analysisService,
-        HealthAdviceService $adviceService
-    ) {
-        $this->analysisService = $analysisService;
-        $this->adviceService = $adviceService;
-    }
+        protected MlPredictionService $mlService,
+        protected AgenticAiService    $aiService,
+    ) {}
+
+    // ─── POST /predict ─────────────────────────────────────────────────────────
 
     /**
-     * Predict disease berdasarkan symptoms yang diinput.
+     * Prediksi risiko penyakit + saran kesehatan dari Gemini.
      *
-     * Request format (JSON):
+     * Request JSON:
      * {
-     *     "age": 45,
-     *     "gender": 1,
-     *     "glucose": 150,
-     *     "blood_pressure": 140,
-     *     "bmi": 28.5
+     *     "age":            45,
+     *     "gender":         0,      // 0 = Perempuan, 1 = Laki-laki
+     *     "glucose":        145.0,  // mg/dL
+     *     "blood_pressure": 145,    // mmHg sistolik
+     *     "bmi":            26.6    // kg/m²
      * }
+     *
+     * Opsional (default otomatis jika tidak dikirim):
+     *     "cholesterol":  200.0    // mg/dL
+     *     "heart_rate":   75       // bpm
      */
     public function predict(Request $request): JsonResponse
     {
-        // Validasi input
+        // ── Validasi input ──────────────────────────────────────────────────────
         $validated = $request->validate([
-            'age' => 'required|integer|min:0|max:120',
-            'gender' => 'required|integer|in:0,1',
-            'glucose' => 'required|numeric|min:0|max:500',
-            'blood_pressure' => 'required|integer|min:0|max:300',
-            'bmi' => 'required|numeric|min:5|max:100',
+            'age'            => 'required|numeric|min:0|max:120',
+            'gender'         => 'required|integer|in:0,1',
+            'glucose'        => 'required|numeric|min:30|max:600',
+            'blood_pressure' => 'required|numeric|min:40|max:250',
+            'bmi'            => 'required|numeric|min:5|max:80',
+            'cholesterol'    => 'nullable|numeric|min:50|max:600',
+            'heart_rate'     => 'nullable|numeric|min:20|max:250',
         ], [
-            'age.required' => 'Usia harus diisi',
-            'age.integer' => 'Usia harus berupa angka',
-            'glucose.required' => 'Kadar glukosa harus diisi',
+            'age.required'            => 'Usia harus diisi',
+            'age.numeric'             => 'Usia harus berupa angka',
+            'gender.required'         => 'Jenis kelamin harus diisi',
+            'gender.in'               => 'Jenis kelamin harus 0 (Perempuan) atau 1 (Laki-laki)',
+            'glucose.required'        => 'Kadar glukosa darah harus diisi',
+            'glucose.numeric'         => 'Kadar glukosa harus berupa angka',
             'blood_pressure.required' => 'Tekanan darah harus diisi',
-            'bmi.required' => 'BMI harus diisi',
+            'bmi.required'            => 'BMI harus diisi',
         ]);
 
-        // Prediksi penyakit
-        $predictionResult = $this->analysisService->predictDiseases($validated);
+        Log::info('[PredictionController] Permintaan prediksi baru', [
+            'age'    => $validated['age'],
+            'gender' => $validated['gender'],
+            'bmi'    => $validated['bmi'],
+        ]);
 
-        if ($predictionResult['status'] !== 'success') {
+        // ── Step 1: ML Prediction (XGBoost via FastAPI) ─────────────────────────
+        //
+        // MlPredictionService akan:
+        //   • POST data ke http://127.0.0.1:8001/predict
+        //   • FastAPI memuat model .pkl yang sudah dilatih dari CSV dataset
+        //   • Model memprediksi SEMUA input, bukan hanya yang ada di dataset
+        //   • Jika FastAPI tidak jalan → localFallback() digunakan otomatis
+        //
+        $mlResult = $this->mlService->predict($validated);
+
+        if (! $mlResult['success']) {
             return response()->json([
-                'status' => $predictionResult['status'],
-                'message' => $predictionResult['message'],
-                'data' => null,
-            ], 200);
+                'status'  => 'error',
+                'message' => 'Gagal mendapatkan prediksi ML. Pastikan Python ML service berjalan.',
+                'data'    => null,
+            ], 500);
         }
 
-        // Generate full advice response
-        $fullResponse = $this->adviceService->generateFullResponse(
-            $predictionResult['predictions'],
-            $validated
-        );
+        // ── Step 2: AI Recommendations (Gemini) ────────────────────────────────
+        //
+        // AgenticAiService akan:
+        //   • Membangun prompt terstruktur dari $validated + $mlResult
+        //   • POST ke Gemini 1.5 Flash API
+        //   • Mengembalikan 3 rekomendasi tindakan perbaikan dalam JSON
+        //
+        $aiResult = $this->aiService->getHealthRecommendations($validated, $mlResult);
 
+        // ── Build response ──────────────────────────────────────────────────────
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Prediksi berhasil',
-            'data' => $fullResponse,
+            'data'    => [
+                // Hasil prediksi ML
+                'model_mode'   => $mlResult['model_mode'],
+                'predictions'  => $mlResult['predictions'],
+                'highest_risk' => $mlResult['highest_risk'],
+
+                // Rekomendasi dari Gemini
+                'recommendations' => $aiResult['recommendations'] ?? [],
+                'disclaimer'      => $aiResult['disclaimer']      ?? '',
+                'ai_success'      => $aiResult['success'],
+            ],
             'metadata' => [
-                'matched_records' => $predictionResult['matched_records'] ?? 0,
+                'ml_mode'   => $mlResult['model_mode'],
+                'ai_model'  => $aiResult['model']  ?? 'gemini-1.5-flash',
                 'timestamp' => now()->toIso8601String(),
-            ]
+            ],
         ], 200);
     }
 
+    // ─── GET /predict/example ──────────────────────────────────────────────────
+
     /**
-     * Get example format untuk testing.
+     * Contoh request untuk keperluan testing / dokumentasi.
      */
     public function example(): JsonResponse
     {
         return response()->json([
-            'message' => 'Contoh request untuk predict endpoint',
+            'message'         => 'Contoh request untuk endpoint POST /predict',
             'example_request' => [
-                'age' => 45,
-                'gender' => 1,  // 0 = Perempuan, 1 = Laki-laki
-                'glucose' => 150,  // mg/dL
-                'blood_pressure' => 140,  // mmHg
-                'bmi' => 28.5  // kg/m²
+                'age'            => 58,
+                'gender'         => 0,      // 0 = Perempuan
+                'glucose'        => 145.0,
+                'blood_pressure' => 145,
+                'bmi'            => 26.6,
+                'cholesterol'    => 210.0,  // opsional
+                'heart_rate'     => 80,     // opsional
             ],
-            'endpoint' => 'POST /api/predict',
-            'description' => 'Mengirim data gejala pasien untuk prediksi penyakit. Response akan berisi top 3 kemungkinan penyakit beserta saran pola makan, olahraga, dan peringatan medis.'
+            'notes' => [
+                'gender'      => '0 = Perempuan, 1 = Laki-laki',
+                'glucose'     => 'mg/dL, rentang normal puasa: 70–100',
+                'blood_press' => 'mmHg sistolik, normal: <120',
+                'bmi'         => 'kg/m², normal: 18.5–24.9',
+            ],
+        ]);
+    }
+
+    // ─── GET /predict/status ───────────────────────────────────────────────────
+
+    /**
+     * Cek status ML service (FastAPI Python).
+     */
+    public function status(): JsonResponse
+    {
+        $isAvailable = $this->mlService->isServiceAvailable();
+
+        return response()->json([
+            'ml_service_available' => $isAvailable,
+            'ml_service_url'       => config('services.ml.url', 'http://127.0.0.1:8001'),
+            'status'               => $isAvailable ? 'online' : 'offline (menggunakan fallback lokal)',
         ]);
     }
 }
