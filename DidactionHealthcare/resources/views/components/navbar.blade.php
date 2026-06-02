@@ -36,7 +36,7 @@
                 ['#how-it-works', 'How It Works'],
                 ['#features', 'Features'],
                 ['#testimonials', 'Testimonials'],
-                ['#get-started', 'Get Started'],
+                ['/get-started', 'Get Started'],
             ] as [$href, $label])
                 <li>
                     <a href="{{ $href }}"
@@ -52,7 +52,7 @@
         </ul>
 
         {{-- Desktop CTA --}}
-        <a href="#get-started" class="hidden lg:inline-flex btn-primary">
+        <a href="/get-started" class="hidden lg:inline-flex btn-primary">
             Check My Health
         </a>
 
@@ -89,7 +89,7 @@
             ['#how-it-works', 'How It Works'],
             ['#features', 'Features'],
             ['#testimonials', 'Testimonials'],
-            ['#get-started', 'Get Started'],
+            ['/get-started', 'Get Started'],
         ] as [$href, $label])
             <a href="{{ $href }}"
                @click="mobileOpen = false"
@@ -97,7 +97,7 @@
                 {{ $label }}
             </a>
         @endforeach
-        <a href="#get-started" @click="mobileOpen = false" class="btn-primary text-center">
+        <a href="/get-started" @click="mobileOpen = false" class="btn-primary text-center">
             Check My Health
         </a>
     </div>

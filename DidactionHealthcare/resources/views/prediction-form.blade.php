@@ -206,7 +206,7 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
         document.getElementById('loadingModal').classList.add('hidden');
 
         if (result.status === 'success') {
-            displayResults(result.data);
+            displayResults(result.data, data);
         } else {
             alert('Error: ' + result.message);
         }
@@ -217,7 +217,59 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
     }
 });
 
-function displayResults(data) {
+function displayResults(apiData, formData) {
+    const predictionsHtml = Object.values(apiData.predictions || {}).map((pred, index) => `
+        <div class="mb-3 p-3 bg-gray-50 rounded-lg border-l-4 ${
+            pred.risk_level === 'High' ? 'border-red-500' : 
+            pred.risk_level === 'Moderate' ? 'border-yellow-500' : 
+            'border-green-500'
+        }">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-medium">${pred.label}</p>
+                    <p class="text-sm text-gray-500">Risiko: ${pred.risk_level}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold ${
+                        pred.risk_level === 'High' ? 'text-red-600' : 
+                        pred.risk_level === 'Moderate' ? 'text-yellow-600' : 
+                        'text-green-600'
+                    }">${pred.percentage}</p>
+                    <p class="text-xs text-gray-500">probabilitas</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    let recommendationsHtml = '';
+    if (apiData.recommendations && apiData.recommendations.length > 0) {
+        recommendationsHtml = `
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-800 mb-3">💡 Saran Tindakan</h3>
+                <div class="space-y-4">
+                    ${apiData.recommendations.map(rec => `
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-medium text-blue-800 flex items-center justify-between">
+                                <span>${rec.title}</span>
+                                <span class="text-xs px-2 py-1 rounded bg-blue-200 text-blue-800">${rec.priority} Priority</span>
+                            </h4>
+                            <p class="text-sm text-gray-700 mt-2">${rec.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        recommendationsHtml = `
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-800 mb-3">💡 Saran Tindakan</h3>
+                <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                    <p>Sistem AI tidak dapat menghasilkan saran saat ini.</p>
+                </div>
+            </div>
+        `;
+    }
+
     const html = `
         <div class="bg-white rounded-lg shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">📋 Hasil Analisis</h2>
@@ -226,153 +278,32 @@ function displayResults(data) {
             <div class="bg-blue-50 rounded-lg p-4 mb-6">
                 <h3 class="font-semibold text-gray-800 mb-2">Data Kesehatan Anda:</h3>
                 <div class="grid grid-cols-2 gap-2 text-sm">
-                    <p>Usia: <span class="font-medium">${data.symptoms_reported['Usia']}</span></p>
-                    <p>Jenis Kelamin: <span class="font-medium">${data.symptoms_reported['Jenis Kelamin']}</span></p>
-                    <p>Glukosa: <span class="font-medium">${data.symptoms_reported['Glukosa Darah']}</span></p>
-                    <p>Tekanan Darah: <span class="font-medium">${data.symptoms_reported['Tekanan Darah Sistolik']}</span></p>
-                    <p>BMI: <span class="font-medium">${data.symptoms_reported['BMI']}</span></p>
+                    <p>Usia: <span class="font-medium">${formData.age} tahun</span></p>
+                    <p>Jenis Kelamin: <span class="font-medium">${formData.gender === 1 ? 'Laki-laki' : 'Perempuan'}</span></p>
+                    <p>Glukosa: <span class="font-medium">${formData.glucose} mg/dL</span></p>
+                    <p>Tekanan Darah: <span class="font-medium">${formData.blood_pressure} mmHg</span></p>
+                    <p>BMI: <span class="font-medium">${formData.bmi}</span></p>
                 </div>
             </div>
 
             <!-- Predictions -->
             <div class="mb-6">
-                <h3 class="font-semibold text-gray-800 mb-3">🔮 Prediksi Penyakit (Top 3)</h3>
-                ${data.predictions.map(pred => `
-                    <div class="mb-3 p-3 bg-gray-50 rounded-lg border-l-4 ${
-                        pred.rank === 1 ? 'border-red-500' : 
-                        pred.rank === 2 ? 'border-yellow-500' : 
-                        'border-green-500'
-                    }">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-medium">${pred.icon} ${pred.label}</p>
-                                <p class="text-lg font-bold text-gray-900">${pred.disease}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-2xl font-bold text-teal-600">${pred.confidence}</p>
-                                <p class="text-xs text-gray-500">keyakinan</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-
-            <!-- Explanation -->
-            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <h3 class="font-semibold text-gray-800 mb-2">💡 Penjelasan:</h3>
-                <p class="text-gray-700 text-sm">${data.explanation}</p>
-            </div>
-
-            <!-- Food Recommendations -->
-            <div class="mb-6">
-                <h3 class="font-semibold text-gray-800 mb-3">🍽️ Saran Pola Makan</h3>
-                
-                <div class="mb-4">
-                    <h4 class="font-medium text-green-700 mb-2">✅ Makanan Dianjurkan:</h4>
-                    <ul class="space-y-1 text-sm">
-                        ${data.food_recommendations.recommended.map(item => `
-                            <li class="flex gap-2">
-                                <span class="text-green-600">✓</span>
-                                <div>
-                                    <p class="font-medium text-gray-800">${item.name}</p>
-                                    <p class="text-gray-600 text-xs">${item.reason}</p>
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="font-medium text-red-700 mb-2">❌ Makanan Dihindari:</h4>
-                    <ul class="space-y-1 text-sm">
-                        ${data.food_recommendations.avoid.map(item => `
-                            <li class="flex gap-2">
-                                <span class="text-red-600">✗</span>
-                                <div>
-                                    <p class="font-medium text-gray-800">${item.name}</p>
-                                    <p class="text-gray-600 text-xs">${item.reason}</p>
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-
-                <div class="bg-blue-50 rounded p-3 text-sm">
-                    <h4 class="font-medium text-gray-800 mb-2">📅 Pola Makan Harian:</h4>
-                    <ul class="space-y-1 text-gray-700">
-                        <li><span class="font-medium">Sarapan:</span> ${data.food_recommendations.daily_pattern.breakfast}</li>
-                        <li><span class="font-medium">Camilan Pagi:</span> ${data.food_recommendations.daily_pattern.snack_morning}</li>
-                        <li><span class="font-medium">Makan Siang:</span> ${data.food_recommendations.daily_pattern.lunch}</li>
-                        <li><span class="font-medium">Camilan Sore:</span> ${data.food_recommendations.daily_pattern.snack_afternoon}</li>
-                        <li><span class="font-medium">Makan Malam:</span> ${data.food_recommendations.daily_pattern.dinner}</li>
-                        <li><span class="text-xs text-gray-600 mt-2">Catatan: ${data.food_recommendations.daily_pattern.note}</span></li>
-                    </ul>
+                <h3 class="font-semibold text-gray-800 mb-3">🔮 Prediksi Risiko Penyakit</h3>
+                ${predictionsHtml}
+                <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                    <p class="font-semibold">⚠️ Risiko Tertinggi: ${apiData.highest_risk}</p>
                 </div>
             </div>
 
-            <!-- Exercise Recommendations -->
-            <div class="mb-6">
-                <h3 class="font-semibold text-gray-800 mb-3">🏃 Saran Olahraga</h3>
-                
-                <div class="mb-4">
-                    <h4 class="font-medium text-green-700 mb-2">✅ Olahraga Dianjurkan:</h4>
-                    <div class="space-y-2">
-                        ${data.exercise_recommendations.recommended.map(item => `
-                            <div class="bg-green-50 rounded p-3 text-sm">
-                                <p class="font-medium text-gray-800">${item.type}</p>
-                                <p class="text-gray-600">⏱️ ${item.duration} | 📅 ${item.frequency}</p>
-                                <p class="text-green-700 text-xs">💡 ${item.benefit}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+            <!-- Recommendations -->
+            ${recommendationsHtml}
 
-                <div class="mb-4">
-                    <h4 class="font-medium text-red-700 mb-2">❌ Olahraga Dihindari:</h4>
-                    <ul class="space-y-1 text-sm">
-                        ${data.exercise_recommendations.avoid.map(item => `
-                            <li class="flex gap-2">
-                                <span class="text-red-600">✗</span>
-                                <div>
-                                    <p class="font-medium text-gray-800">${item.type}</p>
-                                    <p class="text-gray-600 text-xs">${item.reason}</p>
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-
-                <div class="bg-blue-50 rounded p-3">
-                    <h4 class="font-medium text-gray-800 mb-2">💡 Tips Olahraga Aman:</h4>
-                    <ul class="space-y-1 text-sm text-gray-700">
-                        ${data.exercise_recommendations.tips.map(tip => `
-                            <li>• ${tip}</li>
-                        `).join('')}
-                    </ul>
-                </div>
+            <!-- Disclaimer -->
+            ${apiData.disclaimer ? `
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
+                <p><strong>Disclaimer:</strong> ${apiData.disclaimer}</p>
             </div>
-
-            <!-- Medical Warning -->
-            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
-                <h3 class="font-semibold text-red-800 mb-2">⚠️ PERINGATAN PENTING</h3>
-                <p class="text-red-900 text-sm mb-3">${data.medical_warning.disclaimer}</p>
-                
-                <div class="mb-3">
-                    <h4 class="font-medium text-red-800 text-sm mb-1">🚨 Gejala Darurat (segera ke IGD):</h4>
-                    <ul class="text-sm text-red-900">
-                        ${data.medical_warning.red_flags.map(flag => `
-                            <li>• ${flag}</li>
-                        `).join('')}
-                    </ul>
-                </div>
-
-                <div class="mb-2">
-                    <p class="text-sm"><span class="font-medium">🏥 Konsultasi Dokter:</span> ${data.medical_warning.when_to_see_doctor}</p>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-red-900">🚑 Ke IGD Jika: ${data.medical_warning.when_to_er}</p>
-                </div>
-            </div>
+            ` : ''}
         </div>
     `;
 
