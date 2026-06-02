@@ -174,7 +174,7 @@ class HealthRecord extends Model
             return 'Tidak tersedia';
         }
 
-        $maxKey  = array_key_max($risks);
+        $maxKey  = array_search(max($risks), $risks);
         $maxVal  = $risks[$maxKey] * 100;
         $display = [
             'diabetes'      => 'Diabetes',
