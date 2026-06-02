@@ -198,7 +198,6 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
             },
             body: JSON.stringify(data)
         });
@@ -209,7 +208,7 @@ document.getElementById('predictionForm').addEventListener('submit', async (e) =
         if (result.status === 'success') {
             displayResults(result.data, data);
         } else {
-            alert('Error: ' + (result.message || 'Terjadi kesalahan'));
+            alert('Error: ' + result.message);
         }
     } catch (error) {
         document.getElementById('loadingModal').classList.add('hidden');
