@@ -243,7 +243,7 @@ class MlPredictionService
             ];
         }
 
-        $highestKey = array_key_max($risks);
+        $highestKey = array_search(max($risks), $risks);
         $highestPct = number_format($risks[$highestKey] * 100, 1);
 
         return [
