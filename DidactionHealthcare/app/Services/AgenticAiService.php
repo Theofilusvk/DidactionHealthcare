@@ -36,10 +36,11 @@ class AgenticAiService
 
     public function __construct()
     {
-        $this->model   = (string) config('services.gemini.model',   'gemini-1.5-flash');
+        $this->model   = (string) config('services.gemini.model',   'gemini-pro');
         $this->timeout = (int)    config('services.gemini.timeout', 60);
         $this->apiKey  = (string) config('services.gemini.key',     '');
 
+        // Standard Google Cloud API endpoint (works with Google Cloud Console keys)
         $this->geminiEndpoint = sprintf(
             'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s',
             $this->model,
@@ -130,58 +131,32 @@ class AgenticAiService
     private function buildSystemPrompt(): string
     {
         return <<<PROMPT
-Anda adalah asisten kesehatan AI proaktif yang berpengalaman dan empatik.
-Tugas Anda adalah menganalisis hasil skrining kesehatan pasien dan memberikan rekomendasi tindakan perbaikan yang spesifik, actionable, dan berbasis bukti ilmiah.
+Kamu adalah 'HealthAgent', sebuah asisten AI kesehatan yang empatik dan analitis. 
+Tugasmu adalah memberikan saran tindakan pencegahan berdasarkan hasil prediksi Machine Learning dan metrik tubuh pengguna.
 
-## Format Respons WAJIB
-
-Anda HARUS mengembalikan respons HANYA dalam format JSON berikut — tanpa teks tambahan, tanpa markdown, tanpa komentar:
-
-```json
+Instruksi:
+1. Analisis metrik pengguna dan risiko penyakit yang diberikan.
+2. Jangan mendiagnosis medis, tetapi berikan 3 langkah 'Actionable Plan' yang spesifik, praktis, dan disesuaikan dengan kondisi mereka (contoh: jenis olahraga yang cocok untuk BMI tersebut, target asupan gizi).
+3. Berikan jawaban HANYA dalam format JSON dengan struktur persis seperti ini: 
 {
-  "recommendations": [
+  "summary": "Kesimpulan singkat kondisi pasien...",
+  "action_plans": [
     {
-      "title": "Judul singkat saran (maks 8 kata)",
-      "description": "Penjelasan detail 2–3 kalimat. Sertakan angka/target spesifik bila memungkinkan.",
-      "priority": "Tinggi" | "Sedang" | "Rendah"
-    },
-    { ... },
-    { ... }
-  ],
-  "disclaimer": "Satu kalimat disclaimer bahwa saran ini bukan pengganti konsultasi dokter."
+      "title": "Judul tindakan...", 
+      "description": "Penjelasan tindakan...",
+      "priority": "Tinggi"
+    }
+  ]
 }
-```
-
-## Aturan Konten
-
-1. Berikan **TEPAT 3 saran** tindakan perbaikan yang paling relevan berdasarkan risiko tertinggi.
-2. Sesuaikan saran dengan usia, BMI, glukosa, dan tekanan darah pasien secara **personal dan spesifik**.
-3. Setiap saran harus **langsung dapat dilakukan** (bukan saran umum).
-4. Gunakan **Bahasa Indonesia** yang jelas dan mudah dipahami orang awam.
-5. Tetapkan `priority` berdasarkan urgensi klinis: "Tinggi" untuk faktor risiko dominan.
-
-## Hal yang DILARANG
-- Mendiagnosis penyakit secara definitif
-- Merekomendasikan obat-obatan spesifik dengan dosis
-- Menggunakan bahasa yang menakut-nakuti pasien
-- Menambahkan teks di luar objek JSON
+Catatan: Untuk 'priority' isikan dengan Tinggi, Sedang, atau Rendah.
 PROMPT;
     }
 
-    /**
-     * Build User Prompt: The actual patient data and disease predictions to analyze
-     *
-     * This prompt includes:
-     *  1. Patient Profile: Age, sex, BMI, blood glucose, blood pressure, cholesterol, heart rate
-     *  2. Disease Risk Table: Probability percentage for each of 5 diseases with risk levels
-     *  3. Highest Risk Disease: Which disease is the #1 concern for this patient
-     *  4. Clear Instructions: Tell Gemini to focus on the highest risk but consider all factors
-     */
     private function buildUserPrompt(array $mlResult, array $userData): string
     {
         // Extract and format patient health metrics for the prompt
         $age    = $userData['age']            ?? 'N/A';
-        $gender = ($userData['gender'] ?? 1) == 1 ? 'Male' : 'Female';
+        $gender = ($userData['gender'] ?? 1) == 1 ? 'Laki-laki' : 'Perempuan';
         $bmi    = number_format((float) ($userData['bmi'] ?? 0), 1);
         $glc    = number_format((float) ($userData['glucose'] ?? 0), 1);
         $bp     = $userData['blood_pressure'] ?? 'N/A';
@@ -190,42 +165,30 @@ PROMPT;
             : 'Unknown';
         $hr     = $userData['heart_rate'] ?? 'Unknown';
 
-        // Convert BMI to user-friendly category (underweight, normal, overweight, obese)
-        $bmiCategory = $this->bmiCategory((float) ($userData['bmi'] ?? 0));
+        // Extract probabilities
+        $preds = $mlResult['predictions'] ?? [];
+        $diabetesRisk = isset($preds['diabetes']) ? number_format($preds['diabetes']['probability'] * 100, 1) : 'N/A';
+        $htRisk = isset($preds['hypertension']) ? number_format($preds['hypertension']['probability'] * 100, 1) : 'N/A';
 
         // Create a nice formatted table of disease risks for Gemini to see
         $riskTable = $this->formatRiskTable($mlResult['predictions'] ?? []);
 
-        // Find which disease has the highest risk (focus point for recommendations)
-        $highestRisk  = $mlResult['highest_risk'] ?? 'Unknown';
-        $modelMode    = $mlResult['model_mode']   ?? 'unknown';
-
         return <<<PROMPT
-## Data Pasien
+Data Pengguna:
+- Usia: {$age}
+- Gender: {$gender}
+- BMI: {$bmi}
+- Glukosa: {$glc}
+- Tekanan Darah: {$bp}
 
-| Parameter          | Nilai                       |
-|--------------------|------------------------------|
-| Usia               | {$age} tahun                 |
-| Jenis Kelamin      | {$gender}                    |
-| BMI                | {$bmi} kg/m² ({$bmiCategory})|
-| Glukosa Darah      | {$glc} mg/dL                 |
-| Tekanan Darah      | {$bp} mmHg (sistolik)        |
-| Kolesterol Total   | {$chol}                      |
-| Detak Jantung      | {$hr} bpm                    |
+Hasil Prediksi Machine Learning:
+- Risiko Diabetes: {$diabetesRisk}%
+- Risiko Hipertensi: {$htRisk}%
 
-## Hasil Prediksi Risiko Penyakit (Model: {$modelMode})
-
+Seluruh Hasil Prediksi:
 {$riskTable}
 
-**Penyakit dengan Risiko Tertinggi: {$highestRisk}**
-
----
-
-## Instruksi
-
-Berdasarkan profil pasien dan hasil prediksi di atas, berikan **tepat 3 saran kesehatan yang actionable dan spesifik**.
-Fokuskan saran pada penyakit dengan risiko tertinggi, namun pertimbangkan juga faktor risiko lain yang relevan dari profil pasien.
-Gunakan format yang telah ditentukan dalam instruksi sistem.
+Berikan JSON sesuai instruksi sistem berdasarkan data di atas. Hasilkan raw JSON saja, tanpa dibungkus markdown ```json.
 PROMPT;
     }
 
@@ -313,22 +276,18 @@ PROMPT;
      */
     private function callLlmApi(string $systemPrompt, string $userPrompt): array
     {
-        $payload = [
-            // System Instruction: Tells Gemini its role and rules
-            // Think of this as: "Here's how you should act when responding"
-            'system_instruction' => [
-                'parts' => [
-                    ['text' => $systemPrompt],
-                ],
-            ],
+        // Combine system prompt and user prompt into a single message
+        // Google AI Studio v1 endpoint doesn't support system_instruction, so we prepend it
+        $combinedPrompt = $systemPrompt . "\n\n" . $userPrompt;
 
+        $payload = [
             // User Message: The actual patient data and disease predictions
             // This is the question we're asking Gemini: "Given this patient, what should we recommend?"
             'contents' => [
                 [
                     'role'  => 'user',
                     'parts' => [
-                        ['text' => $userPrompt],
+                        ['text' => $combinedPrompt],
                     ],
                 ],
             ],
@@ -337,12 +296,12 @@ PROMPT;
             'generationConfig' => [
                 // Temperature: How creative vs. factual the response should be
                 // 0.7 = balanced (not too random, not too boring)
-                'temperature'     => 0.7,
-                // Maximum tokens: Roughly how long the response can be (~500-700 words)
-                'maxOutputTokens' => 1024,
+                'temperature'      => 0.7,
+                // Maximum tokens: Gemini 2.5 uses 'thoughts' which consume tokens. Set high!
+                'maxOutputTokens'  => 8192,
                 // Top P: How diverse the word choices should be (0.9 = pretty diverse)
-                'topP'            => 0.9,
-                // Response Format: Ask Gemini to respond with clean JSON (not mixed text)
+                'topP'             => 0.9,
+                // Paksa Gemini untuk membalas dengan format valid JSON
                 'responseMimeType' => 'application/json',
             ],
         ];
@@ -379,35 +338,40 @@ PROMPT;
                 return $this->staticFallbackAdvice(200, 'Empty response from Gemini');
             }
 
-            // Parse the JSON response from Gemini
-            // We ask Gemini to respond in JSON format, so we decode it here
-            $parsed          = json_decode($rawText, true);
-            $recommendations = $parsed['recommendations'] ?? [];
-            $disclaimer      = $parsed['disclaimer'] ?? '';
+            // Ensure rawText is clean (remove markdown if Gemini adds it)
+            $rawText = trim($rawText);
+            if (str_starts_with($rawText, '```json')) {
+                $rawText = str_replace(['```json', '```'], '', $rawText);
+            } elseif (str_starts_with($rawText, '```')) {
+                $rawText = str_replace('```', '', $rawText);
+            }
+            $rawText = trim($rawText);
 
-            // If Gemini didn't return valid JSON or recommendations, we'll log it and use raw text
-            if (empty($recommendations)) {
+            // Parse the JSON response from Gemini
+            $parsed       = json_decode($rawText, true);
+            $actionPlans  = $parsed['action_plans'] ?? [];
+            $summary      = $parsed['summary'] ?? '';
+
+            if (empty($actionPlans)) {
                 Log::warning('[AgenticAI] Gagal parse JSON rekomendasi, menggunakan teks mentah', [
                     'raw_text' => substr($rawText, 0, 300),
                 ]);
             }
 
-            // Track how many tokens (words) were used
-            // This helps us monitor API costs and optimize prompts
             $usageMeta = $data['usageMetadata'] ?? [];
 
             Log::info('[AgenticAI] Rekomendasi berhasil digenerate via Gemini', [
                 'model'                  => $this->model,
                 'prompt_token_count'     => $usageMeta['promptTokenCount']     ?? 0,
                 'candidates_token_count' => $usageMeta['candidatesTokenCount'] ?? 0,
-                'recommendations_count'  => count($recommendations),
+                'action_plans_count'     => count($actionPlans),
             ]);
 
             return [
                 'success'                => true,
-                'recommendations'        => $recommendations,   // array JSON terstruktur
-                'disclaimer'             => $disclaimer,
-                'advice'                 => $rawText,           // teks mentah (kompatibilitas)
+                'action_plans'           => $actionPlans,
+                'summary'                => $summary,
+                'advice'                 => $rawText,
                 'model'                  => $this->model,
                 'prompt_token_count'     => $usageMeta['promptTokenCount']     ?? 0,
                 'candidates_token_count' => $usageMeta['candidatesTokenCount'] ?? 0,
@@ -440,27 +404,29 @@ PROMPT;
      */
     private function staticFallbackAdvice(int $statusCode, string $errorMsg): array
     {
-        $advice = <<<ADVICE
-> ⚠️ **Catatan**: Saran AI saat ini tidak tersedia. Berikut adalah panduan umum berdasarkan standar kesehatan WHO.
-
-### Saran 1: Pantau Kadar Glukosa dan Tekanan Darah Secara Rutin
-Lakukan pengecekan gula darah dan tekanan darah minimal 1 kali per bulan. Target kadar glukosa puasa yang sehat adalah 70–100 mg/dL, dan tekanan darah ideal di bawah 120/80 mmHg. Catat hasilnya untuk dilaporkan ke dokter pada kunjungan berikutnya.
-
-### Saran 2: Terapkan Pola Makan Seimbang dengan Prinsip Isi Piring
-Isi setengah piring dengan sayuran dan buah, seperempat dengan protein tanpa lemak (ikan, tahu, tempe), dan seperempat dengan karbohidrat kompleks (nasi merah, ubi). Batasi konsumsi gula tambahan di bawah 25 gram per hari dan garam di bawah 5 gram per hari sesuai anjuran WHO.
-
-### Saran 3: Lakukan Aktivitas Fisik Terstruktur Minimal 150 Menit per Minggu
-Targetkan setidaknya 30 menit olahraga intensitas sedang (jalan cepat, bersepeda, renang) selama 5 hari per minggu. Mulai secara bertahap jika belum terbiasa berolahraga, dan konsultasikan dengan dokter sebelum memulai program olahraga jika Anda memiliki kondisi kesehatan tertentu.
-
----
-*⚕️ Saran ini bersifat umum dan bukan pengganti konsultasi dengan tenaga medis profesional.*
-ADVICE;
-
         return [
-            'success' => false,
-            'advice'  => $advice,
-            'model'   => 'static_fallback',
-            'error'   => "LLM API unavailable (HTTP {$statusCode}): {$errorMsg}",
+            'success'      => false,
+            'summary'      => 'Saran AI saat ini tidak tersedia. Berikut adalah panduan umum berdasarkan standar kesehatan.',
+            'action_plans' => [
+                [
+                    'title'       => 'Pantau Kadar Glukosa',
+                    'description' => 'Lakukan pengecekan gula darah dan tekanan darah rutin. Target glukosa puasa 70–100 mg/dL.',
+                    'priority'    => 'Tinggi'
+                ],
+                [
+                    'title'       => 'Pola Makan Seimbang',
+                    'description' => 'Isi setengah piring dengan sayuran dan buah, batasi gula di bawah 25 gram per hari.',
+                    'priority'    => 'Sedang'
+                ],
+                [
+                    'title'       => 'Aktivitas Fisik',
+                    'description' => 'Targetkan olahraga intensitas sedang minimal 30 menit per hari.',
+                    'priority'    => 'Sedang'
+                ]
+            ],
+            'advice'       => 'LLM API unavailable.',
+            'model'        => 'static_fallback',
+            'error'        => "LLM API unavailable (HTTP {$statusCode}): {$errorMsg}",
         ];
     }
 }

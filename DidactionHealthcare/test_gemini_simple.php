@@ -33,7 +33,7 @@ foreach ($lines as $line) {
 }
 
 $apiKey = $env['GEMINI_API_KEY'] ?? null;
-$model = $env['GEMINI_MODEL'] ?? 'gemini-1.5-flash';
+$model = $env['GEMINI_MODEL'] ?? 'gemini-pro';
 
 if (empty($apiKey)) {
     echo "❌ GEMINI_API_KEY is empty in .env\n";
@@ -43,16 +43,14 @@ if (empty($apiKey)) {
 echo "✅ Found API Key: " . substr($apiKey, 0, 20) . "...\n";
 echo "✅ Model: $model\n\n";
 
-$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+// Use REST endpoint format for Google AI Studio
+$endpoint = "https://generativelanguage.googleapis.com/rest/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
 // ─── Test 1: Simple API Test ────────────────────────────────────────
 echo "1️⃣  SIMPLE API TEST\n";
 echo "─────────────────────────────────────────────────────────────\n";
 
 $payload = [
-    'system_instruction' => [
-        'parts' => [['text' => 'You are a helpful assistant. Respond in JSON format.']]
-    ],
     'contents' => [
         ['role' => 'user', 'parts' => [['text' => 'Test message. Respond with {"status": "ok"}']]]
     ],
@@ -60,7 +58,6 @@ $payload = [
         'temperature'      => 0.7,
         'maxOutputTokens'  => 256,
         'topP'             => 0.95,
-        'responseMimeType' => 'application/json'
     ]
 ];
 
@@ -150,17 +147,13 @@ echo "2️⃣  HEALTH DATA TEST\n";
 echo "─────────────────────────────────────────────────────────────\n";
 
 $healthPayload = [
-    'system_instruction' => [
-        'parts' => [['text' => 'Anda adalah konsultan kesehatan. Berikan 1 rekomendasi dalam JSON.']]
-    ],
     'contents' => [
-        ['role' => 'user', 'parts' => [['text' => 'Pasien 45 tahun, BMI 28.5, Glukosa 145. Berikan rekomendasi dalam JSON format.']]]
+        ['role' => 'user', 'parts' => [['text' => 'Anda adalah konsultan kesehatan. Berikan 1 rekomendasi dalam JSON.\n\nPasien 45 tahun, BMI 28.5, Glukosa 145. Berikan rekomendasi dalam JSON format.']]]
     ],
     'generationConfig' => [
         'temperature'      => 0.7,
         'maxOutputTokens'  => 512,
         'topP'             => 0.95,
-        'responseMimeType' => 'application/json'
     ]
 ];
 

@@ -121,9 +121,9 @@ class PredictionController extends Controller
                 'highest_risk' => $mlResult['highest_risk'],
 
                 // Rekomendasi dari Gemini
-                'recommendations' => $aiResult['recommendations'] ?? [],
-                'disclaimer'      => $aiResult['disclaimer']      ?? '',
-                'ai_success'      => $aiResult['success'],
+                'summary'      => $aiResult['summary']      ?? '',
+                'action_plans' => $aiResult['action_plans'] ?? [],
+                'ai_success'   => $aiResult['success'],
             ],
             'metadata' => [
                 'ml_mode'   => $mlResult['model_mode'],

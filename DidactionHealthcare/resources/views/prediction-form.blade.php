@@ -241,11 +241,12 @@ function displayResults(data, inputData) {
         ...pred
     })).sort((a, b) => b.probability - a.probability);
 
-    // Build recommendations HTML
-    const recommendations = data.recommendations || [];
-    const recHtml = recommendations.length > 0
-        ? recommendations.map((rec, i) => {
-            const prColor = rec.priority === 'Tinggi' ? 'red' : rec.priority === 'Sedang' ? 'yellow' : 'green';
+    // Build action plans HTML
+    const actionPlans = data.action_plans || [];
+    const recHtml = actionPlans.length > 0
+        ? actionPlans.map((rec, i) => {
+            const priority = rec.priority || 'Sedang';
+            const prColor = priority === 'Tinggi' ? 'red' : priority === 'Sedang' ? 'yellow' : 'green';
             return `
                 <div class="p-4 bg-${prColor}-50 border-l-4 border-${prColor}-400 rounded-lg">
                     <div class="flex items-start justify-between">
@@ -254,13 +255,17 @@ function displayResults(data, inputData) {
                             <p class="text-sm text-gray-700 mt-1">${rec.description}</p>
                         </div>
                         <span class="ml-3 px-2 py-1 text-xs font-medium bg-${prColor}-100 text-${prColor}-800 rounded-full whitespace-nowrap">
-                            ${rec.priority}
+                            ${priority}
                         </span>
                     </div>
                 </div>
             `;
         }).join('')
         : '<p class="text-gray-500 italic">Rekomendasi AI tidak tersedia saat ini.</p>';
+
+    const summaryHtml = data.summary 
+        ? `<div class="mb-4 p-4 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 text-sm"><p><strong>Kesimpulan:</strong> ${data.summary}</p></div>` 
+        : '';
 
     const genderLabel = inputData.gender === 0 ? 'Perempuan' : 'Laki-laki';
 
@@ -320,7 +325,8 @@ function displayResults(data, inputData) {
 
             <!-- AI Recommendations -->
             <div class="mb-6">
-                <h3 class="font-semibold text-gray-800 mb-3">💡 Rekomendasi AI</h3>
+                <h3 class="font-semibold text-gray-800 mb-3">💡 Action Plans (AI)</h3>
+                ${summaryHtml}
                 <div class="space-y-3">
                     ${recHtml}
                 </div>
