@@ -305,85 +305,16 @@ class ModelBundle:
 
     def _predict_xgboost(self, feature_vector: list[float]) -> dict[str, float]:
         """Inference dengan model-model XGBoost (.pkl)."""
-        import pandas as pd
+        import numpy as np
         
-        # Mapping dari INPUT_FEATURES [age, gender, bmi, glucose, blood_pressure, cholesterol, heart_rate]
-        age, gender, bmi, glucose, blood_pressure, cholesterol, heart_rate = feature_vector
+        x_input = np.array([feature_vector], dtype=np.float32)
 
         results = {}
 
-        # 1. Heart Disease
-        # Fitur: ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
-        if "heart_disease" in self.xgb_models:
-            model = self.xgb_models["heart_disease"]
-            fbs_val = 1.0 if glucose > 120.0 else 0.0
-            heart_df = pd.DataFrame([{
-                'age': age,
-                'sex': gender,
-                'cp': 0.0,
-                'trestbps': blood_pressure,
-                'chol': cholesterol,
-                'fbs': fbs_val,
-                'restecg': 0.0,
-                'thalach': heart_rate,
-                'exang': 0.0,
-                'oldpeak': 0.0,
-                'slope': 1.0,
-                'ca': 0.0,
-                'thal': 2.0
-            }])
-            results["heart_disease"] = float(model.predict_proba(heart_df)[0][1])
-
-        # 2. Stroke
-        # Fitur: ['age', 'avg_glucose_level', 'bmi']
-        if "stroke" in self.xgb_models:
-            model = self.xgb_models["stroke"]
-            stroke_df = pd.DataFrame([{
-                'age': age,
-                'avg_glucose_level': glucose,
-                'bmi': bmi
-            }])
-            results["stroke"] = float(model.predict_proba(stroke_df)[0][1])
-
-        # 3. Diabetes
-        # Fitur: ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age']
-        if "diabetes" in self.xgb_models:
-            model = self.xgb_models["diabetes"]
-            diab_df = pd.DataFrame([{
-                'Pregnancies': 0.0,
-                'Glucose': glucose,
-                'BloodPressure': blood_pressure,
-                'SkinThickness': 23.0,
-                'Insulin': 30.0,
-                'BMI': bmi,
-                'DiabetesPedigreeFunction': 0.37,
-                'Age': age
-            }])
-            results["diabetes"] = float(model.predict_proba(diab_df)[0][1])
-
-        # 4. Hypertension
-        # Fitur: ['Age', 'Systolic_BP', 'Diastolic_BP', 'Glucose', 'BMI']
-        if "hypertension" in self.xgb_models:
-            model = self.xgb_models["hypertension"]
-            hyper_df = pd.DataFrame([{
-                'Age': age,
-                'Systolic_BP': blood_pressure,
-                'Diastolic_BP': 80.0,
-                'Glucose': glucose,
-                'BMI': bmi
-            }])
-            results["hypertension"] = float(model.predict_proba(hyper_df)[0][1])
-
-        # 5. CKD
-        # Fitur: ['age', 'avg_glucose_level', 'bmi']
-        if "ckd" in self.xgb_models:
-            model = self.xgb_models["ckd"]
-            ckd_df = pd.DataFrame([{
-                'age': age,
-                'avg_glucose_level': glucose,
-                'bmi': bmi
-            }])
-            results["ckd"] = float(model.predict_proba(ckd_df)[0][1])
+        for disease_key in DISEASE_LABELS:
+            if disease_key in self.xgb_models:
+                model = self.xgb_models[disease_key]
+                results[disease_key] = float(model.predict_proba(x_input)[0][1])
 
         return results
 

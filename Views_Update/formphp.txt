@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didaction Healthcare - Cek Kesehatan AI</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN Integration) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Background Grid Pattern CSS Styling -->
+    <style>
+        .bg-grid-pattern {
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(20, 184, 166, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 184, 166, 0.05) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#ECF9F6] via-[#F4FBF9] to-[#E8F8F5] bg-grid-pattern text-slate-800 font-sans selection:bg-teal-100 selection:text-teal-900 pb-20">
+
+    <!-- 1. HEADER (Replicated from template) -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-teal-500/10 px-6 lg:px-12 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Logo with + icon -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#005B60] flex items-center justify-center text-white shadow-md shadow-teal-700/10">
+                    <!-- Custom Inline SVG Plus Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 stroke-[3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <span class="font-serif text-2xl font-bold tracking-tight text-[#003638]">
+                    Didaction Health<span class="text-[#00A19D]">care</span>
+                </span>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                <a href="#" class="transition-colors hover:text-[#005B60]">Home</a>
+                <a href="#assessment-section" class="transition-colors hover:text-[#005B60]">How It Works</a>
+                <a href="#assessment-section" class="transition-colors hover:text-[#005B60]">Features</a>
+                <a href="#assessment-section" class="transition-colors hover:text-[#005B60]">Testimonials</a>
+                <a href="#assessment-section" class="transition-colors text-[#005B60] relative py-1.5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#005B60] after:rounded-full">Get Started</a>
+            </nav>
+
+            <!-- Teal Call to Action Button -->
+            <a href="#assessment-section" class="bg-[#005B60] hover:bg-[#00474A] active:scale-[0.98] transition-all text-white px-5 py-2.5 rounded-full text-sm font-semibold tracking-wide shadow-md hover:shadow-teal-700/15 text-center">
+                Check My Health
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 pt-12">
+
+        <!-- CORE ASSESSMENT SECTION -->
+        <section id="assessment-section" class="scroll-mt-24">
+            
+            <!-- Headline & Subheadline -->
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <h2 class="font-serif text-4xl md:text-5xl font-bold tracking-tight text-[#003638]">
+                    Cek Kesehatan Anda Sekarang
+                </h2>
+                <p class="text-slate-500 text-sm md:text-base">
+                    Masukkan data kesehatan fungsional Anda di bawah ini. Algoritma klinis kecerdasan buatan medis Didaction akan langsung meninjau kombinasi metrik gula darah, tekanan darah, dan indeks massa tubuh Anda secara komprehensif.
+                </p>
+            </div>
+
+            <!-- Dashboard Structured Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                
+                <!-- COLUMN LEFT: CARD INPUT FORM -->
+                <div class="bg-white rounded-3xl p-8 shadow-[0_20px_50px_rgba(20,184,166,0.06)] border border-teal-500/10 space-y-6">
+                    
+                    <div class="border-b border-slate-100 pb-5">
+                        <h3 class="font-serif text-2xl font-bold text-[#003638]">
+                            Data Kesehatan Anda
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">
+                            Masukkan metrik tubuh Anda seakurat mungkin untuk hasil kecerdasan medis yang presisi.
+                        </p>
+                    </div>
+
+                    <!-- Client Interaction Form -->
+                    <form id="healthForm" onsubmit="handleAnalyzeSubmit(event)" class="space-y-5">
+                        
+                        <!-- Row 1: Usia & Jenis kelamin -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                    Usia (tahun)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="usia" 
+                                    min="1" 
+                                    max="120"
+                                    required
+                                    value="45"
+                                    placeholder="Contoh: 45"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                                >
+                            </div>
+
+                            <div>
+                                <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                    Jenis Kelamin
+                                </label>
+                                <select
+                                    id="jenisKelamin"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
+                                >
+                                    <option value="Laki-laki" selected>Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Kadar Glukosa -->
+                        <div>
+                            <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                Kadar Glukosa Darah (mg/dL)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="glukosa" 
+                                min="20" 
+                                max="600"
+                                required
+                                value="150"
+                                placeholder="Contoh: 150"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                            >
+                            <div class="mt-2">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                    Normal: 70-130 mg/dL (puasa)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Tekanan Darah Sistolik -->
+                        <div>
+                            <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                Tekanan Darah Sistolik (mmHg)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="tekananSistolik" 
+                                min="50" 
+                                max="250"
+                                required
+                                value="140"
+                                placeholder="Contoh: 140"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                            >
+                            <div class="mt-2">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                    Normal: &lt;120 mmHg
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- BMI -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-slate-700 text-xs font-bold uppercase tracking-wider block">
+                                    BMI (Berat/Tinggi²)
+                                </label>
+                                <button 
+                                    type="button"
+                                    onclick="toggleBmiCalc()"
+                                    class="text-xs text-[#005B60] hover:text-[#004245] font-semibold flex items-center gap-1 focus:outline-none hover:underline cursor-pointer"
+                                >
+                                    <!-- Weight Scale SVG Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0"/><path d="M12 3v9"/></svg>
+                                    Hitung BMI Saya
+                                </button>
+                            </div>
+
+                            <!-- Interactive BMI Instant Drawer (Vanilla JS controlled) -->
+                            <div id="bmiCalcDrawer" class="hidden mb-3 p-4 rounded-xl bg-teal-50/50 border border-teal-500/20 space-y-3">
+                                <h5 class="text-xs font-bold text-[#003638] flex items-center gap-1">Kalkulator BMI Instan</h5>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Berat (kg)</label>
+                                        <input 
+                                            type="number"
+                                            id="bmiWeight"
+                                            placeholder="Contoh: 70"
+                                            class="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                                        >
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Tinggi (cm)</label>
+                                        <input 
+                                            type="number"
+                                            id="bmiHeight"
+                                            placeholder="Contoh: 170"
+                                            class="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2 text-xs pt-1">
+                                    <button 
+                                        type="button" 
+                                        onclick="toggleBmiCalc()"
+                                        class="px-3 py-1 text-slate-500 font-semibold hover:bg-slate-100 rounded"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onclick="applyBmiValue()"
+                                        class="px-3 py-1 bg-[#005B60] hover:bg-[#00474A] text-white font-semibold rounded shadow-sm"
+                                    >
+                                        Terapkan
+                                    </button>
+                                </div>
+                            </div>
+
+                            <input 
+                                type="number" 
+                                id="bmi" 
+                                step="0.1"
+                                min="10" 
+                                max="60"
+                                required
+                                value="28.5"
+                                placeholder="Contoh: 28.5"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                            >
+                            <div class="mt-2">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                    Norm: 18.5-24.9 | Overweight: 25-29.9 | Obesitas: &gt;=30
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Submit Button -->
+                        <button
+                            type="submit"
+                            id="submitBtn"
+                            class="w-full bg-[#005B60] hover:bg-[#00474A] disabled:bg-slate-300 text-white font-semibold py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md shadow-teal-500/5 hover:shadow-teal-900/10 active:scale-[0.99] cursor-pointer"
+                        >
+                            <span>Analisis Kesehatan Saya</span>
+                            <!-- Right Arrow SVG Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+
+                    </form>
+
+                    <!-- CLINIC DATA QUICK BUTTONS -->
+                    <div class="border-t border-slate-100 pt-5 space-y-3">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Coba dengan contoh data klinis:
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onclick="applySampleData(52, 'Laki-laki', 185, 135, 27.2)"
+                                class="bg-white hover:bg-teal-50/30 text-teal-900 border border-teal-600/30 font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:border-teal-500"
+                            >
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                Contoh: Diabetes (52 tahun)
+                            </button>
+                            <button
+                                type="button"
+                                onclick="applySampleData(58, 'Perempuan', 110, 165, 31.4)"
+                                class="bg-white hover:bg-teal-50/30 text-teal-900 border border-teal-600/30 font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:border-teal-500"
+                            >
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                Contoh: Penyakit Jantung (58 tahun)
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- COLUMN RIGHT: CARD OUTPUT REPORT -->
+                <div class="bg-white rounded-3xl p-8 shadow-[0_20px_50px_rgba(20,184,166,0.06)] border border-teal-500/10 min-h-[660px] flex flex-col">
+                    
+                    <!-- Result Card Top Status line -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00A19D]"></span>
+                            Hasil Analisis Medis
+                        </span>
+                        
+                        <button 
+                            id="resetBtn" 
+                            onclick="resetAllForm()" 
+                            class="hidden text-xs font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer"
+                        >
+                            <!-- Refresh Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                            Mulai Ulang
+                        </button>
+                    </div>
+
+                    <!-- 1. EMPTY / PLACEHOLDER STATE -->
+                    <div id="statusEmpty" class="flex-1 flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-teal-50/50 flex items-center justify-center text-[#00A19D] mb-5 border border-teal-100">
+                            <!-- Clipboard Icon SVG -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 stroke-[1.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        </div>
+                        <h4 class="font-serif text-xl font-bold text-[#003638] mb-2">
+                            Hasil Analisis Akan Muncul di Sini
+                        </h4>
+                        <p class="text-slate-500 text-xs leading-relaxed max-w-sm mx-auto">
+                            Isi data kesehatan objektif Anda di sebelah kiri, lalu klik tombol <strong class="text-teal-900">"Analisis Kesehatan Saya"</strong> untuk mendapatkan diagnosis bertenaga kecerdasan medis secara menyeluruh.
+                        </p>
+                    </div>
+
+                    <!-- 2. LOADING STATE -->
+                    <div id="statusLoading" class="hidden flex-1 flex flex-col items-center justify-center py-20 text-center space-y-6">
+                        <div class="relative">
+                            <div class="w-24 h-24 rounded-full border-4 border-teal-50 border-t-teal-500 animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-[#00A19D]">
+                                <!-- Heart SVG Icon with pulse -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                            </div>
+                        </div>
+                        <div class="space-y-2 max-w-sm">
+                            <h4 class="font-serif text-lg font-bold text-[#003638]">Mendeteksi Profil Medis Anda</h4>
+                            <p id="loadingMessage" class="text-xs text-slate-400 font-mono">
+                                Mengumpulkan data kesehatan fisiologis...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3. ERROR STATE -->
+                    <div id="statusError" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                            <!-- Alert Circle Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-base font-bold text-slate-800">Gangguan Diagnosa Terdeteksi</h4>
+                            <p id="errorMessage" class="text-xs text-slate-500 max-w-sm mx-auto"></p>
+                        </div>
+                    </div>
+
+                    <!-- 4. ACTIVE RESULTS REPORT VIEW -->
+                    <div id="statusSuccess" class="hidden flex-1 space-y-6">
+                        
+                        <!-- Header & Circular Health Gauge row -->
+                        <div class="bg-[#FAFDFD] rounded-2xl p-5 border border-teal-500/5 flex flex-col sm:flex-row items-center gap-6">
+                            
+                            <!-- Static SVG Score Gauge -->
+                            <div class="relative flex-shrink-0 w-24 h-24 rounded-full bg-white shadow-inner flex items-center justify-center border-4 border-slate-100">
+                                <div class="text-center z-10">
+                                    <div id="reportScore" class="font-serif text-3xl font-extrabold text-[#005B60]">92</div>
+                                    <div class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Health Score</div>
+                                </div>
+                                <svg class="absolute inset-0 w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="44" class="stroke-teal-50 fill-none" stroke-width="4" />
+                                    <circle id="gaugeProgressCircle" cx="48" cy="48" r="44" class="stroke-[#00A19D] fill-none transition-all duration-1000" stroke-width="4" stroke-dasharray="276" stroke-dashoffset="30" />
+                                </svg>
+                            </div>
+
+                            <!-- Narrative text & Status badge -->
+                            <div class="text-center sm:text-left space-y-1.5 flex-1">
+                                <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                                    <h4 class="text-slate-800 font-bold text-lg">Prediksi Status</h4>
+                                    <span id="reportStatusBadge" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold leading-none">
+                                        <span id="reportStatusBullet" class="w-1.5 h-1.5 rounded-full"></span>
+                                        <span id="reportStatusText">Aman</span>
+                                    </span>
+                                </div>
+                                <h5 id="reportSummaryTitle" class="text-xs font-bold text-[#005B60]">Analisis Selesai</h5>
+                                <p id="reportSummaryText" class="text-slate-500 text-xs leading-relaxed"></p>
+                            </div>
+
+                        </div>
+
+                        <!-- 3 Parameter metrics blocks -->
+                        <div id="metricsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Dynamically generated parameters metrics in JS -->
+                        </div>
+
+                        <!-- Recommendations list area -->
+                        <div class="space-y-4 pt-2 border-t border-slate-100">
+                            
+                            <!-- Immediate actions -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                    <span class="text-[#00A19D]">●</span> Rencana Tindakan Segera (1 - 2 Minggu)
+                                </h4>
+                                <ol id="listActionPlan" class="text-xs text-slate-600 space-y-1.5 pl-5 list-decimal font-medium">
+                                    <!-- Dynamic elements from JS -->
+                                </ol>
+                            </div>
+
+                            <!-- Potential disease risks -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                    <span class="text-amber-500">▲</span> Potensi Risiko Penyakit
+                                </h4>
+                                <ul id="listPotentialRisks" class="text-xs text-slate-600 space-y-1.5 pl-5 list-disc font-medium">
+                                    <!-- Dynamic elements from JS -->
+                                </ul>
+                            </div>
+
+                            <!-- Dietary Guidelines -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                    <span class="text-emerald-600">■</span> Panduan Nutrisi & Pola Makan
+                                </h4>
+                                <ul id="listDietaryGuidelines" class="text-xs text-slate-600 space-y-1.5 pl-5 list-disc font-medium">
+                                    <!-- Dynamic elements from JS -->
+                                </ul>
+                            </div>
+
+                            <!-- Lifestyle change guidelines -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                    <span class="text-indigo-500">◆</span> Olahraga & Perubahan Gaya Hidup
+                                </h4>
+                                <ul id="listLifestyleChanges" class="text-xs text-slate-600 space-y-1.5 pl-5 list-disc font-medium">
+                                    <!-- Dynamic elements from JS -->
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Decorative footer credit -->
+    <footer class="mt-20 border-t border-teal-500/10 pt-8 max-w-7xl mx-auto px-6 text-center text-xs text-slate-400 font-medium">
+        <p>© 2026 Didaction Healthcare. Semua rekomendasi kecerdasan buatan bersifat edukasional dan bimbingan kesehatan alternatif. Silakan berkonsultasi dengan dokter medis berlisensi untuk tindakan klinis resmi.</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // Toggle the interactive BMI sliding drawer
+        function toggleBmiCalc() {
+            const drawer = document.getElementById('bmiCalcDrawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        // Apply interactive calculation values for BMIs
+        function applyBmiValue() {
+            const w = parseFloat(document.getElementById('bmiWeight').value);
+            const h = parseFloat(document.getElementById('bmiHeight').value) / 100;
+
+            if (w > 0 && h > 0) {
+                const bmi = (w / (h * h)).toFixed(1);
+                document.getElementById('bmi').value = bmi;
+                toggleBmiCalc();
+            } else {
+                alert('Silakan isi dimensi berat dan tinggi tubuh Anda secara logis.');
+            }
+        }
+
+        // Apply clinic simulation buttons
+        function applySampleData(age, gender, glucose, bloodPressure, bmiVal) {
+            document.getElementById('usia').value = age;
+            document.getElementById('jenisKelamin').value = gender;
+            document.getElementById('glukosa').value = glucose;
+            document.getElementById('tekananSistolik').value = bloodPressure;
+            document.getElementById('bmi').value = bmiVal;
+
+            // Trigger submit immediately for clinical results
+            handleFormPost();
+        }
+
+        // Handle entire reset flow
+        function resetAllForm() {
+            document.getElementById('healthForm').reset();
+            
+            // Toggle view visibility
+            document.getElementById('statusEmpty').classList.remove('hidden');
+            document.getElementById('statusLoading').classList.add('hidden');
+            document.getElementById('statusError').classList.add('hidden');
+            document.getElementById('statusSuccess').classList.add('hidden');
+            document.getElementById('resetBtn').classList.add('hidden');
+        }
+
+        // Loading spinner animation steps
+        const loadingSteps = [
+            'Mengumpulkan data kesehatan fisiologis Anda...',
+            'Menghubungkan ke server diagnosa AI Didaction...',
+            'Meninjau standar risiko klinis & kardiovaskular...',
+            'Menyusun skema rekomendasi gizi & nutrisi...'
+        ];
+        let loadingInterval = null;
+
+        function startLoadingTransition() {
+            document.getElementById('statusEmpty').classList.add('hidden');
+            document.getElementById('statusError').classList.add('hidden');
+            document.getElementById('statusSuccess').classList.add('hidden');
+            document.getElementById('statusLoading').classList.remove('hidden');
+            document.getElementById('resetBtn').classList.add('hidden');
+
+            let currentStep = 0;
+            document.getElementById('loadingMessage').innerText = loadingSteps[0];
+            
+            loadingInterval = setInterval(() => {
+                currentStep = (currentStep + 1) % loadingSteps.length;
+                document.getElementById('loadingMessage').innerText = loadingSteps[currentStep];
+            }, 1000);
+        }
+
+        function stopLoadingTransition() {
+            if (loadingInterval) {
+                clearInterval(loadingInterval);
+                loadingInterval = null;
+            }
+            document.getElementById('statusLoading').classList.add('hidden');
+        }
+
+        // Submit form wrapper
+        function handleAnalyzeSubmit(e) {
+            e.preventDefault();
+            handleFormPost();
+        }
+
+        // Send AJAX Post request to self
+        async function handleFormPost() {
+            // Read inputs
+            const usia = parseInt(document.getElementById('usia').value);
+            const jenisKelamin = document.getElementById('jenisKelamin').value;
+            const glukosa = parseInt(document.getElementById('glukosa').value);
+            const tekananSistolik = parseInt(document.getElementById('tekananSistolik').value);
+            const bmi = parseFloat(document.getElementById('bmi').value);
+
+            startLoadingTransition();
+
+            try {
+                const response = await fetch('?action=analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ usia, jenisKelamin, glukosa, tekananSistolik, bmi })
+                });
+
+                stopLoadingTransition();
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Terjadi gangguan pemrosesan data klinis.');
+                }
+
+                renderMedicalReport(data);
+
+            } catch (err) {
+                stopLoadingTransition();
+                document.getElementById('statusError').classList.remove('hidden');
+                document.getElementById('errorMessage').innerText = err.message;
+            }
+        }
+
+        // Dynamically inject response into HTML interface
+        function renderMedicalReport(report) {
+            // Activate success column card
+            document.getElementById('statusSuccess').classList.remove('hidden');
+            document.getElementById('resetBtn').classList.remove('hidden');
+
+            // Render score indicator
+            document.getElementById('reportScore').innerText = report.score;
+            
+            // Adjust SVG circle dashoffset according to the score
+            const circle = document.getElementById('gaugeProgressCircle');
+            const circumference = 276; // 2 * PI * r (r=44)
+            const strokeDashoffset = circumference - (circumference * report.score) / 100;
+            circle.style.strokeDashoffset = strokeDashoffset;
+
+            // Render overall status badge
+            document.getElementById('reportStatusText').innerText = report.status;
+            
+            const badge = document.getElementById('reportStatusBadge');
+            const bullet = document.getElementById('reportStatusBullet');
+
+            // Colors styling based on status tag
+            badge.className = "inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold leading-none";
+            bullet.className = "w-1.5 h-1.5 rounded-full";
+
+            if (report.status === 'Aman') {
+                badge.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-100');
+                bullet.classList.add('bg-emerald-500');
+            } else if (report.status === 'Peringatan') {
+                badge.classList.add('bg-amber-50', 'text-amber-700', 'border', 'border-amber-100');
+                bullet.classList.add('bg-amber-500');
+            } else {
+                badge.classList.add('bg-rose-50', 'text-rose-700', 'border', 'border-rose-100');
+                bullet.classList.add('bg-rose-500');
+            }
+
+            // Summaries texts
+            document.getElementById('reportSummaryTitle').innerText = report.summaryTitle;
+            document.getElementById('reportSummaryText').innerText = report.summaryText;
+
+            // Build metrics list cards
+            const metricsContainer = document.getElementById('metricsGrid');
+            metricsContainer.innerHTML = '';
+            
+            report.metrics.forEach(metric => {
+                let badgeClass = "bg-emerald-50 text-emerald-700";
+                if (metric.statusColor === 'yellow') {
+                    badgeClass = "bg-amber-50 text-amber-700";
+                } else if (metric.statusColor === 'red') {
+                    badgeClass = "bg-rose-50 text-rose-700";
+                }
+
+                const widget = `
+                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5">
+                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wide">${metric.name}</div>
+                        <div class="font-mono text-base font-bold text-slate-800">${metric.value}</div>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeClass}">
+                            ${metric.status}
+                        </span>
+                        <p class="text-[10px] text-slate-500 leading-normal pt-1 border-t border-slate-50">
+                            ${metric.explanation}
+                        </p>
+                    </div>
+                `;
+                metricsContainer.innerHTML += widget;
+            });
+
+            // Populate all recommendation guidelines 
+            populateList('listActionPlan', report.analysisDetails.actionPlan);
+            populateList('listPotentialRisks', report.analysisDetails.potentialRisks);
+            populateList('listDietaryGuidelines', report.analysisDetails.dietaryGuidelines);
+            populateList('listLifestyleChanges', report.analysisDetails.lifestyleChanges);
+        }
+
+        // Helper list population
+        function populateList(elementId, listItems) {
+            const listObj = document.getElementById(elementId);
+            listObj.innerHTML = '';
+            listItems.forEach(item => {
+                listObj.innerHTML += `<li>${item}</li>`;
+            });
+        }
+    </script>
+</body>
+</html>
