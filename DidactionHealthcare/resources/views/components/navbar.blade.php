@@ -19,7 +19,7 @@
     <div class="max-w-[1200px] mx-auto px-6 flex items-center justify-between h-full">
 
         {{-- Logo --}}
-        <a href="#" class="flex items-center gap-3 font-display text-xl text-gray-800 whitespace-nowrap">
+        <a href="/" class="flex items-center gap-3 font-display text-xl text-gray-800 whitespace-nowrap">
             <span class="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-brand-teal-light to-brand-teal rounded-lg shrink-0">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 4v16M4 12h16"/>
@@ -32,11 +32,11 @@
         {{-- Desktop nav links --}}
         <ul class="hidden lg:flex items-center gap-8">
             @foreach ([
-                ['#home', 'Home'],
-                ['#how-it-works', 'How It Works'],
-                ['#features', 'Features'],
-                ['#testimonials', 'Testimonials'],
-                ['#get-started', 'Get Started'],
+                ['/', 'Home'],
+                ['/#how-it-works', 'How It Works'],
+                ['/#features', 'Features'],
+                ['/#testimonials', 'Testimonials'],
+                ['/get-started', 'Get Started'],
             ] as [$href, $label])
                 <li>
                     <a href="{{ $href }}"
@@ -85,11 +85,11 @@
         class="lg:hidden bg-white/97 backdrop-blur-xl px-6 py-8 flex flex-col gap-5 shadow-lg"
     >
         @foreach ([
-            ['#home', 'Home'],
-            ['#how-it-works', 'How It Works'],
-            ['#features', 'Features'],
-            ['#testimonials', 'Testimonials'],
-            ['#get-started', 'Get Started'],
+            ['/', 'Home'],
+            ['/#how-it-works', 'How It Works'],
+            ['/#features', 'Features'],
+            ['/#testimonials', 'Testimonials'],
+            ['/get-started', 'Get Started'],
         ] as [$href, $label])
             <a href="{{ $href }}"
                @click="mobileOpen = false"
