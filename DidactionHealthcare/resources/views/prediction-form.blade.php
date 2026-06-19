@@ -75,51 +75,54 @@
                                 </div>
                             </div>
 
-                            <!-- Kadar Glukosa -->
-                            <div>
-                                <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
-                                    Kadar Glukosa Darah (mg/dL)
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="glukosa" 
-                                    min="20" 
-                                    max="600"
-                                    required
-                                    value="150"
-                                    placeholder="Contoh: 150"
-                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
-                                >
-                                <div class="mt-2">
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
-                                        Normal: 70-130 mg/dL (puasa)
-                                    </span>
+                            <!-- Row 2: Glukosa & Tekanan Darah -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Kadar Glukosa -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Kadar Glukosa Darah (mg/dL)
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="glukosa" 
+                                        min="20" 
+                                        max="600"
+                                        required
+                                        value="150"
+                                        placeholder="Contoh: 150"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                                    >
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                            Normal: 70-130 mg/dL (puasa)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Tekanan Darah Sistolik -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Tekanan Darah Sistolik (mmHg)
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="tekananSistolik" 
+                                        min="50" 
+                                        max="250"
+                                        required
+                                        value="140"
+                                        placeholder="Contoh: 140"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                                    >
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                            Normal: &lt;120 mmHg
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Tekanan Darah Sistolik -->
-                            <div>
-                                <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
-                                    Tekanan Darah Sistolik (mmHg)
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="tekananSistolik" 
-                                    min="50" 
-                                    max="250"
-                                    required
-                                    value="140"
-                                    placeholder="Contoh: 140"
-                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
-                                >
-                                <div class="mt-2">
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
-                                        Normal: &lt;120 mmHg
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- BMI -->
+                            <!-- Row 3: BMI -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="text-slate-700 text-xs font-bold uppercase tracking-wider block">
@@ -190,6 +193,83 @@
                                     <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
                                         Norm: 18.5-24.9 | Overweight: 25-29.9 | Obesitas: &gt;=30
                                     </span>
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Aktivitas Fisik & Status Merokok -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Tingkat Aktivitas Fisik -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Tingkat Aktivitas Fisik
+                                    </label>
+                                    <select
+                                        id="aktivitasFisik"
+                                        required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
+                                    >
+                                        <option value="sedentary" selected>Sedentary (Tidak Aktif)</option>
+                                        <option value="light">Ringan (1-3x/minggu)</option>
+                                        <option value="moderate">Sedang (3-5x/minggu)</option>
+                                        <option value="high">Tinggi (6-7x/minggu)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Merokok -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Status Merokok
+                                    </label>
+                                    <select
+                                        id="statusMerokok"
+                                        required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
+                                    >
+                                        <option value="never" selected>Tidak Pernah</option>
+                                        <option value="former">Mantan Perokok</option>
+                                        <option value="active">Perokok Aktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Protein Urine & HbA1c -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Kadar Protein dalam Urine -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Kadar Protein dalam Urine <span class="text-slate-400 font-normal normal-case"><br>(Opsional)</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="proteinUrine" 
+                                        step="0.1"
+                                        placeholder="Kosongkan jika tidak tahu"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                                    >
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                            NORMAL: &lt;150 MG/HARI
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Kadar HbA1c -->
+                                <div>
+                                    <label class="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2 block">
+                                        Kadar HbA1c <span class="text-slate-400 font-normal normal-case"><br>(Opsional)</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="hba1c" 
+                                        step="0.1"
+                                        placeholder="Kosongkan jika tidak tahu"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
+                                    >
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase py-1 px-2.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-100/60 font-mono">
+                                            NORMAL: &lt;5.7% | PREDIABETES: 5.7-6.4% | DIABETES: &ge;6.5%
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
