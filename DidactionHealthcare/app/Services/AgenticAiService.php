@@ -164,6 +164,11 @@ PROMPT;
             ? number_format((float) $userData['cholesterol'], 1) . ' mg/dL'
             : 'Unknown';
         $hr     = $userData['heart_rate'] ?? 'Unknown';
+        
+        $aktivitasFisik = $userData['aktivitas_fisik'] ?? 'N/A';
+        $statusMerokok  = $userData['status_merokok'] ?? 'N/A';
+        $proteinUrine   = isset($userData['protein_urine']) ? $userData['protein_urine'] . ' mg/hari' : 'Tidak diketahui';
+        $hba1c          = isset($userData['hba1c']) ? $userData['hba1c'] . '%' : 'Tidak diketahui';
 
         // Extract probabilities
         $preds = $mlResult['predictions'] ?? [];
@@ -180,6 +185,10 @@ Data Pengguna:
 - BMI: {$bmi}
 - Glukosa: {$glc}
 - Tekanan Darah: {$bp}
+- Tingkat Aktivitas Fisik: {$aktivitasFisik}
+- Status Merokok: {$statusMerokok}
+- Kadar Protein Urine: {$proteinUrine}
+- Kadar HbA1c: {$hba1c}
 
 Hasil Prediksi Machine Learning:
 - Risiko Diabetes: {$diabetesRisk}%

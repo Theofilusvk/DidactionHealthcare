@@ -59,13 +59,17 @@ class PredictionController extends Controller
     {
         // ── Validasi input ──────────────────────────────────────────────────────
         $validated = $request->validate([
-            'age'            => 'required|numeric|min:0|max:120',
-            'gender'         => 'required|integer|in:0,1',
-            'glucose'        => 'required|numeric|min:30|max:600',
-            'blood_pressure' => 'required|numeric|min:40|max:250',
-            'bmi'            => 'required|numeric|min:5|max:80',
-            'cholesterol'    => 'nullable|numeric|min:50|max:600',
-            'heart_rate'     => 'nullable|numeric|min:20|max:250',
+            'age'             => 'required|numeric|min:0|max:120',
+            'gender'          => 'required|integer|in:0,1',
+            'glucose'         => 'required|numeric|min:30|max:600',
+            'blood_pressure'  => 'required|numeric|min:40|max:250',
+            'bmi'             => 'required|numeric|min:5|max:80',
+            'cholesterol'     => 'nullable|numeric|min:50|max:600',
+            'heart_rate'      => 'nullable|numeric|min:20|max:250',
+            'aktivitas_fisik' => 'required|string|in:sedentary,light,moderate,high',
+            'status_merokok'  => 'required|string|in:never,former,active',
+            'protein_urine'   => 'nullable|numeric|min:0',
+            'hba1c'           => 'nullable|numeric|min:0',
         ], [
             'age.required'            => 'Usia harus diisi',
             'age.numeric'             => 'Usia harus berupa angka',
@@ -75,6 +79,8 @@ class PredictionController extends Controller
             'glucose.numeric'         => 'Kadar glukosa harus berupa angka',
             'blood_pressure.required' => 'Tekanan darah harus diisi',
             'bmi.required'            => 'BMI harus diisi',
+            'aktivitas_fisik.required'=> 'Tingkat aktivitas fisik harus dipilih',
+            'status_merokok.required' => 'Status merokok harus dipilih',
         ]);
 
         Log::info('[PredictionController] Permintaan prediksi baru', [

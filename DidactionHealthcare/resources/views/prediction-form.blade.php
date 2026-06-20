@@ -515,6 +515,10 @@
             const glucose = parseFloat(document.getElementById('glukosa').value);
             const blood_pressure = parseInt(document.getElementById('tekananSistolik').value);
             const bmi = parseFloat(document.getElementById('bmi').value);
+            const aktivitas_fisik = document.getElementById('aktivitasFisik').value;
+            const status_merokok = document.getElementById('statusMerokok').value;
+            const protein_urine = document.getElementById('proteinUrine').value ? parseFloat(document.getElementById('proteinUrine').value) : null;
+            const hba1c = document.getElementById('hba1c').value ? parseFloat(document.getElementById('hba1c').value) : null;
 
             startLoadingTransition();
 
@@ -526,7 +530,7 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ age, gender, glucose, blood_pressure, bmi })
+                    body: JSON.stringify({ age, gender, glucose, blood_pressure, bmi, aktivitas_fisik, status_merokok, protein_urine, hba1c })
                 });
 
                 const result = await response.json();
