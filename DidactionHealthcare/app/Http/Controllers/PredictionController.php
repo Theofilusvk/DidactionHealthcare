@@ -7,6 +7,7 @@ use App\Services\AgenticAiService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 /**
  * PredictionController
@@ -116,6 +117,40 @@ class PredictionController extends Controller
         //
         $aiResult = $this->aiService->getHealthRecommendations($validated, $mlResult);
 
+        // ── Step 3: Health Score & Risk Status & Health Plan ─────────────────
+        $highestProb = 0;
+        $riskStatus = 'Aman';
+        $predictions = $mlResult['predictions'] ?? [];
+        foreach ($predictions as $p) {
+            if (($p['probability'] ?? 0.0) > $highestProb) {
+                $highestProb = $p['probability'];
+                if (($p['risk_level'] ?? '') === 'High') {
+                    $riskStatus = 'Bahaya';
+                } elseif (($p['risk_level'] ?? '') === 'Moderate' && $riskStatus !== 'Bahaya') {
+                    $riskStatus = 'Peringatan';
+                }
+            }
+        }
+        $healthScore = max(0, round(100 - ($highestProb * 100)));
+
+        // Call generate-health-plan via MlPredictionService
+        $healthPlan = $this->mlService->generateHealthPlan($validated, $predictions);
+
+        // Save analysis results to session
+        $analysisResult = [
+            'input_data'    => $validated,
+            'health_score'  => $healthScore,
+            'risk_status'   => $riskStatus,
+            'predictions'   => $predictions,
+            'highest_risk'  => $mlResult['highest_risk'] ?? '',
+            'meal_plan'     => $healthPlan['meal_plan'] ?? [],
+            'activity_plan' => $healthPlan['activity_plan'] ?? [],
+            'disclaimer'    => $healthPlan['disclaimer'] ?? '',
+            'summary'       => $aiResult['summary'] ?? '',
+            'action_plans'  => $aiResult['action_plans'] ?? [],
+        ];
+        session(['analysis_result' => $analysisResult]);
+
         // ── Build response ──────────────────────────────────────────────────────
         return response()->json([
             'status'  => 'success',
@@ -137,6 +172,29 @@ class PredictionController extends Controller
                 'timestamp' => now()->toIso8601String(),
             ],
         ], 200);
+    }
+
+    /**
+     * Ekspor hasil analisis kesehatan ke PDF.
+     * GET /export-pdf
+     */
+    public function exportPdf()
+    {
+        $analysisResult = session('analysis_result');
+
+        if (empty($analysisResult)) {
+            return redirect('/get-started')->with('error', 'Belum ada data analisis yang dapat diekspor. Silakan lakukan analisis terlebih dahulu.');
+        }
+
+        $dateStr = now()->format('Y-m-d');
+        $fileName = "Laporan-Kesehatan-Didaction-{$dateStr}.pdf";
+
+        $pdf = Pdf::loadView('pdf.health-report', [
+            'data' => $analysisResult,
+            'date' => now()->format('d F Y'),
+        ]);
+
+        return $pdf->download($fileName);
     }
 
     // ─── GET /predict/example ──────────────────────────────────────────────────

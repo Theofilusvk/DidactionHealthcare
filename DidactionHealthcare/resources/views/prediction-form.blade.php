@@ -15,6 +15,13 @@
             <!-- CORE ASSESSMENT SECTION -->
             <section id="assessment-section" class="scroll-mt-24">
                 
+                @if (session('error'))
+                    <div class="max-w-2xl mx-auto mb-8 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-3 text-sm font-semibold shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-rose-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
                 <!-- Headline & Subheadline -->
                 <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
                     <h2 class="font-serif text-4xl md:text-5xl font-bold tracking-tight text-[#003638]">
@@ -55,7 +62,7 @@
                                         min="1" 
                                         max="120"
                                         required
-                                        value="45"
+                                        value="{{ session('analysis_result.input_data.age', 45) }}"
                                         placeholder="Contoh: 45"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                     >
@@ -69,8 +76,8 @@
                                         id="jenisKelamin"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
                                     >
-                                        <option value="Laki-laki" selected>Laki-laki</option>
-                                        <option value="Perempuan">Perempuan</option>
+                                        <option value="Laki-laki" {{ session('analysis_result.input_data.gender', 1) == 1 ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ session('analysis_result.input_data.gender') !== null && session('analysis_result.input_data.gender') == 0 ? 'selected' : '' }}>Perempuan</option>
                                     </select>
                                 </div>
                             </div>
@@ -88,7 +95,7 @@
                                         min="20" 
                                         max="600"
                                         required
-                                        value="150"
+                                        value="{{ session('analysis_result.input_data.glucose', 150) }}"
                                         placeholder="Contoh: 150"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                     >
@@ -110,7 +117,7 @@
                                         min="50" 
                                         max="250"
                                         required
-                                        value="140"
+                                        value="{{ session('analysis_result.input_data.systolic', 140) }}"
                                         placeholder="Contoh: 140"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                     >
@@ -185,7 +192,7 @@
                                     min="10" 
                                     max="60"
                                     required
-                                    value="28.5"
+                                    value="{{ session('analysis_result.input_data.bmi', 28.5) }}"
                                     placeholder="Contoh: 28.5"
                                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                 >
@@ -208,10 +215,10 @@
                                         required
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
                                     >
-                                        <option value="sedentary" selected>Sedentary (Tidak Aktif)</option>
-                                        <option value="light">Ringan (1-3x/minggu)</option>
-                                        <option value="moderate">Sedang (3-5x/minggu)</option>
-                                        <option value="high">Tinggi (6-7x/minggu)</option>
+                                        <option value="sedentary" {{ session('analysis_result.input_data.aktivitas_fisik') === null || session('analysis_result.input_data.aktivitas_fisik') == 'sedentary' ? 'selected' : '' }}>Sedentary (Tidak Aktif)</option>
+                                        <option value="light" {{ session('analysis_result.input_data.aktivitas_fisik') == 'light' ? 'selected' : '' }}>Ringan (1-3x/minggu)</option>
+                                        <option value="moderate" {{ session('analysis_result.input_data.aktivitas_fisik') == 'moderate' ? 'selected' : '' }}>Sedang (3-5x/minggu)</option>
+                                        <option value="high" {{ session('analysis_result.input_data.aktivitas_fisik') == 'high' ? 'selected' : '' }}>Tinggi (6-7x/minggu)</option>
                                     </select>
                                 </div>
 
@@ -225,9 +232,9 @@
                                         required
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50 appearance-none cursor-pointer"
                                     >
-                                        <option value="never" selected>Tidak Pernah</option>
-                                        <option value="former">Mantan Perokok</option>
-                                        <option value="active">Perokok Aktif</option>
+                                        <option value="never" {{ session('analysis_result.input_data.status_merokok') === null || session('analysis_result.input_data.status_merokok') == 'never' ? 'selected' : '' }}>Tidak Pernah</option>
+                                        <option value="former" {{ session('analysis_result.input_data.status_merokok') == 'former' ? 'selected' : '' }}>Mantan Perokok</option>
+                                        <option value="active" {{ session('analysis_result.input_data.status_merokok') == 'active' ? 'selected' : '' }}>Perokok Aktif</option>
                                     </select>
                                 </div>
                             </div>
@@ -243,6 +250,7 @@
                                         type="number" 
                                         id="proteinUrine" 
                                         step="0.1"
+                                        value="{{ session('analysis_result.input_data.protein_urine') }}"
                                         placeholder="Kosongkan jika tidak tahu"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                     >
@@ -262,6 +270,7 @@
                                         type="number" 
                                         id="hba1c" 
                                         step="0.1"
+                                        value="{{ session('analysis_result.input_data.hba1c') }}"
                                         placeholder="Kosongkan jika tidak tahu"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-100 transition-all text-slate-800 font-semibold bg-slate-50/50"
                                     >
@@ -312,6 +321,25 @@
 
                     </div>
 
+                    @php
+                        $hasResult = session()->has('analysis_result');
+                        $res = session('analysis_result');
+                        $score = $res['health_score'] ?? 0;
+                        $status = $res['risk_status'] ?? 'Aman';
+                        $highestRisk = $res['highest_risk'] ?? '';
+                        $summary = $res['summary'] ?? '';
+                        
+                        $badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+                        $bulletClass = 'bg-emerald-500';
+                        if ($status === 'Peringatan') {
+                            $badgeClass = 'bg-amber-50 text-amber-700 border border-amber-100';
+                            $bulletClass = 'bg-amber-500';
+                        } elseif ($status === 'Bahaya') {
+                            $badgeClass = 'bg-rose-50 text-rose-700 border border-rose-100';
+                            $bulletClass = 'bg-rose-500';
+                        }
+                    @endphp
+
                     <!-- COLUMN RIGHT: CARD OUTPUT REPORT -->
                     <div class="bg-white rounded-3xl p-8 shadow-[0_20px_50px_rgba(20,184,166,0.06)] border border-teal-500/10 min-h-[660px] flex flex-col">
                         
@@ -322,18 +350,29 @@
                                 Hasil Analisis Medis
                             </span>
                             
-                            <button 
-                                id="resetBtn" 
-                                onclick="resetAllForm()" 
-                                class="hidden text-xs font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                                Mulai Ulang
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <a 
+                                    id="downloadPdfBtn" 
+                                    href="/export-pdf" 
+                                    target="_blank"
+                                    class="{{ $hasResult ? '' : 'hidden' }} text-xs font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 cursor-pointer border border-teal-500/20 px-2.5 py-1.5 rounded-xl bg-teal-50/50 hover:bg-teal-50 transition-all"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    Export PDF
+                                </a>
+                                <button 
+                                    id="resetBtn" 
+                                    onclick="resetAllForm()" 
+                                    class="{{ $hasResult ? '' : 'hidden' }} text-xs font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                                    Mulai Ulang
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 1. EMPTY STATE -->
-                        <div id="statusEmpty" class="flex-1 flex flex-col items-center justify-center py-20 text-center">
+                        <div id="statusEmpty" class="{{ $hasResult ? 'hidden' : '' }} flex-1 flex flex-col items-center justify-center py-20 text-center">
                             <div class="w-20 h-20 rounded-2xl bg-teal-50/50 flex items-center justify-center text-[#00A19D] mb-5 border border-teal-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 stroke-[1.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
                             </div>
@@ -373,32 +412,32 @@
                         </div>
 
                         <!-- 4. ACTIVE RESULTS REPORT VIEW -->
-                        <div id="statusSuccess" class="hidden flex-1 space-y-6">
+                        <div id="statusSuccess" class="{{ $hasResult ? '' : 'hidden' }} flex-1 space-y-6">
                             
                             <!-- Header & Circular Health Gauge row -->
                             <div class="bg-[#FAFDFD] rounded-2xl p-5 border border-teal-500/5 flex flex-col sm:flex-row items-center gap-6">
                                 
                                 <div class="relative flex-shrink-0 w-24 h-24 rounded-full bg-white shadow-inner flex items-center justify-center border-4 border-slate-100">
                                     <div class="text-center z-10">
-                                        <div id="reportScore" class="font-serif text-3xl font-extrabold text-[#005B60]">92</div>
+                                        <div id="reportScore" class="font-serif text-3xl font-extrabold text-[#005B60]">{{ $score }}</div>
                                         <div class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Health Score</div>
                                     </div>
                                     <svg class="absolute inset-0 w-full h-full -rotate-90">
                                         <circle cx="48" cy="48" r="44" class="stroke-teal-50 fill-none" stroke-width="4" />
-                                        <circle id="gaugeProgressCircle" cx="48" cy="48" r="44" class="stroke-[#00A19D] fill-none transition-all duration-1000" stroke-width="4" stroke-dasharray="276" stroke-dashoffset="30" />
+                                        <circle id="gaugeProgressCircle" cx="48" cy="48" r="44" class="stroke-[#00A19D] fill-none transition-all duration-1000" stroke-width="4" stroke-dasharray="276" stroke-dashoffset="{{ $hasResult ? 276 - (276 * $score) / 100 : 30 }}" />
                                     </svg>
                                 </div>
 
                                 <div class="text-center sm:text-left space-y-1.5 flex-1">
                                     <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                                         <h4 class="text-slate-800 font-bold text-lg">Prediksi Status</h4>
-                                        <span id="reportStatusBadge" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold leading-none">
-                                            <span id="reportStatusBullet" class="w-1.5 h-1.5 rounded-full"></span>
-                                            <span id="reportStatusText">Aman</span>
+                                        <span id="reportStatusBadge" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold leading-none {{ $hasResult ? $badgeClass : '' }}">
+                                            <span id="reportStatusBullet" class="w-1.5 h-1.5 rounded-full {{ $hasResult ? $bulletClass : '' }}"></span>
+                                            <span id="reportStatusText">{{ $status }}</span>
                                         </span>
                                     </div>
-                                    <h5 id="reportSummaryTitle" class="text-xs font-bold text-[#005B60]">Analisis Selesai</h5>
-                                    <p id="reportSummaryText" class="text-slate-500 text-xs leading-relaxed"></p>
+                                    <h5 id="reportSummaryTitle" class="text-xs font-bold text-[#005B60]">{{ $hasResult ? ($highestRisk ? "Risiko Tertinggi: " . $highestRisk : "Analisis Selesai") : "Analisis Selesai" }}</h5>
+                                    <p id="reportSummaryText" class="text-slate-500 text-xs leading-relaxed">{{ $summary }}</p>
                                 </div>
                             </div>
 
@@ -406,7 +445,22 @@
                             <div class="space-y-2">
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Prediksi Risiko Penyakit</h4>
                                 <div id="metricsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    <!-- Dynamically generated parameters metrics in JS -->
+                                    @if($hasResult && !empty($res['predictions']))
+                                        @foreach($res['predictions'] as $metric)
+                                            @php
+                                                $metricBadgeClass = "bg-emerald-50 text-emerald-700";
+                                                if ($metric['risk_level'] === 'Moderate') $metricBadgeClass = "bg-amber-50 text-amber-700";
+                                                elseif ($metric['risk_level'] === 'High') $metricBadgeClass = "bg-rose-50 text-rose-700";
+                                            @endphp
+                                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5">
+                                                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wide">{{ $metric['label'] }}</div>
+                                                <div class="font-mono text-lg font-bold text-slate-800">{{ $metric['percentage'] }}</div>
+                                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded {{ $metricBadgeClass }}">
+                                                    {{ $metric['risk_level'] }}
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
 
@@ -417,7 +471,27 @@
                                         <span class="text-[#00A19D]">●</span> Rekomendasi Kecerdasan Buatan (AI)
                                     </h4>
                                     <div id="listActionPlan" class="text-xs text-slate-600 space-y-3 font-medium">
-                                        <!-- Dynamic elements from JS -->
+                                        @if($hasResult && !empty($res['action_plans']))
+                                            @foreach($res['action_plans'] as $plan)
+                                                @php
+                                                    $priority = $plan['priority'] ?? 'Sedang';
+                                                    $prColor = $priority === 'Tinggi' ? 'rose' : ($priority === 'Sedang' ? 'amber' : 'emerald');
+                                                @endphp
+                                                <div class="p-4 bg-{{ $prColor }}-50 border-l-4 border-{{ $prColor }}-400 rounded-lg shadow-sm">
+                                                    <div class="flex items-start justify-between">
+                                                        <div>
+                                                            <p class="font-bold text-slate-800 text-sm">{{ $plan['title'] }}</p>
+                                                            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">{{ $plan['description'] }}</p>
+                                                        </div>
+                                                        <span class="ml-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-{{ $prColor }}-100 text-{{ $prColor }}-800 rounded-full whitespace-nowrap">
+                                                            {{ $priority }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @elseif($hasResult)
+                                            <p class="text-slate-500 italic">Rekomendasi AI tidak tersedia saat ini.</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -470,6 +544,7 @@
             document.getElementById('statusError').classList.add('hidden');
             document.getElementById('statusSuccess').classList.add('hidden');
             document.getElementById('resetBtn').classList.add('hidden');
+            document.getElementById('downloadPdfBtn').classList.add('hidden');
         }
 
         const loadingSteps = [
@@ -528,7 +603,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({ age, gender, glucose, blood_pressure, bmi, aktivitas_fisik, status_merokok, protein_urine, hba1c })
                 });
@@ -552,6 +628,7 @@
         function renderMedicalReport(data) {
             document.getElementById('statusSuccess').classList.remove('hidden');
             document.getElementById('resetBtn').classList.remove('hidden');
+            document.getElementById('downloadPdfBtn').classList.remove('hidden');
 
             const predictions = Object.entries(data.predictions || {}).map(([key, p]) => p);
             let highestProb = 0;

@@ -12,5 +12,4 @@ Route::get('/health', function () {
 Route::prefix('predict')->group(function () {
     Route::get('/example', [PredictionController::class, 'example']);
     Route::get('/status',  [PredictionController::class, 'status']);
-    Route::post('/',       [PredictionController::class, 'predict']);
 });
