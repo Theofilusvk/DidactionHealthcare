@@ -36,7 +36,6 @@
                 ['/#how-it-works', 'How It Works'],
                 ['/#features', 'Features'],
                 ['/#testimonials', 'Testimonials'],
-                ['/get-started', 'Get Started'],
             ] as [$href, $label])
                 <li>
                     <a href="{{ $href }}"
@@ -89,7 +88,6 @@
             ['/#how-it-works', 'How It Works'],
             ['/#features', 'Features'],
             ['/#testimonials', 'Testimonials'],
-            ['/get-started', 'Get Started'],
         ] as [$href, $label])
             <a href="{{ $href }}"
                @click="mobileOpen = false"
