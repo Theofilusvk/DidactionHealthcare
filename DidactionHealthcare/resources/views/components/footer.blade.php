@@ -3,7 +3,7 @@
     <div class="max-w-[1200px] mx-auto px-6">
         
         {{-- Footer Top Grid --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 pb-16 border-b border-white/8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 pb-16 border-b border-white/10">
             {{-- Brand info --}}
             <div class="lg:col-span-2 space-y-6">
                 <div class="flex items-center gap-3 font-display text-lg text-gray-200">
@@ -24,7 +24,7 @@
                         ['LinkedIn', 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 4a2 2 0 1 0 0 4 2 2 0 1 0 0-4z'],
                         ['Instagram', 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01']
                     ] as [$label, $path])
-                        <a href="#" class="w-9 h-9 rounded-full bg-white/6 flex items-center justify-center group hover:bg-brand-teal transition-all duration-300 hover:-translate-y-0.5" aria-label="{{ $label }}">
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center group hover:bg-brand-teal transition-all duration-300 hover:-translate-y-0.5" aria-label="{{ $label }}">
                             <svg class="w-4 h-4 fill-gray-400 group-hover:fill-white transition-colors" viewBox="0 0 24 24">
                                 <path d="{{ $path }}"></path>
                             </svg>

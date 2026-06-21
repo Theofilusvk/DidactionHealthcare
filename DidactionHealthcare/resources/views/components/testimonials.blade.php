@@ -1,131 +1,115 @@
-{{-- Testimonials Section --}}
-<section class="section-padding bg-white relative" id="testimonials">
+{{-- Model & Methodology Section (replaces fake testimonials) --}}
+<section class="section-padding bg-white relative" id="methodology" style="scroll-margin-top: 80px;">
+
     <div class="max-w-[1200px] mx-auto px-6">
 
-        {{-- Section Header --}}
-        <div class="text-center mb-16">
+        {{-- Section header --}}
+        <div class="text-center mb-14">
             <div class="reveal inline-flex items-center gap-2 text-sm font-semibold tracking-wider uppercase text-brand-teal mb-4">
                 <span class="inline-block w-6 h-0.5 bg-brand-teal rounded-full"></span>
-                Testimonials
+                Model & Methodology
             </div>
             <h2 class="reveal font-display text-[clamp(1.75rem,3vw+0.5rem,2.75rem)] leading-[1.15] text-gray-800 mb-4"
                 style="transition-delay: 0.1s;">
-                Real People, Real Results
+                Built on Clinical Evidence,<br/>Not Assumptions.
             </h2>
-            <p class="reveal text-lg text-gray-500 max-w-[600px] mx-auto"
+            <p class="reveal text-lg text-gray-500 max-w-[560px] mx-auto leading-relaxed"
                style="transition-delay: 0.2s;">
-                See how Didaction Healthcare is helping people take control of their well-being.
+                Didaction's predictions are grounded in public medical datasets and established clinical thresholds used by healthcare professionals.
             </p>
         </div>
 
-        {{-- Testimonials Container with Alpine.js Carousel controls --}}
-        @php
-            $testimonials = [
-                [
-                    'name' => 'James Rodriguez',
-                    'condition' => 'Managing Type 2 Diabetes',
-                    'quote' => 'The dietary recommendations were spot-on for my diabetes management. My blood sugar levels have been more stable than ever in the past three months.',
-                    'avatar' => '👨',
-                    'avatar_bg' => 'from-brand-teal-pale to-[#C5E8E8]',
-                ],
-                [
-                    'name' => 'Priya Sharma',
-                    'condition' => 'Managing Chronic Fatigue',
-                    'quote' => 'I was skeptical at first, but the personalized activity plan helped me manage my chronic fatigue. I finally have energy to enjoy my evenings again.',
-                    'avatar' => '👩',
-                    'avatar_bg' => 'from-brand-sage-pale to-[#D4E9D7]',
-                ],
-                [
-                    'name' => 'Michael Chen',
-                    'condition' => 'Managing Hypertension',
-                    'quote' => 'After my hypertension diagnosis, I felt lost. Didaction gave me a clear, simple plan. My doctor was impressed with my progress at the next checkup.',
-                    'avatar' => '👨‍🦳',
-                    'avatar_bg' => 'from-[#FDE8E3] to-[#FADDD5]',
-                ]
-            ];
-        @endphp
+        {{-- Two-column editorial layout --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start mb-14">
 
-        {{-- Desktop: 3-column Grid, Mobile: Interactive Carousel --}}
-        <div x-data="{
-                activeTab: 0,
-                total: {{ count($testimonials) }},
-                next() { this.activeTab = (this.activeTab + 1) % this.total; },
-                prev() { this.activeTab = (this.activeTab - 1 + this.total) % this.total; }
-             }"
-             class="relative w-full max-w-[1000px] mx-auto">
+            {{-- Left: Model cards --}}
+            <div class="reveal space-y-4" style="transition-delay: 0.1s;">
+                <h3 class="font-display text-xl text-gray-800 mb-4">Prediction Models</h3>
 
-            {{-- Cards Wrapper --}}
-            <div class="hidden md:grid grid-cols-3 gap-6">
-                @foreach ($testimonials as $i => $item)
-                    <div class="reveal bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative"
-                         style="transition-delay: {{ ($i + 1) * 0.1 }}s;">
+                @php
+                    $models = [
+                        ['Hypertension Risk', 'Framingham Heart Study guidelines. Features: systolic BP, BMI, age, cholesterol.'],
+                        ['Heart Disease Risk', 'UCI Heart Disease Dataset. Features: chest pain type, ECG results, max heart rate, cholesterol.'],
+                        ['Stroke Risk', 'Kaggle Stroke Prediction Dataset (5,110 records). Features: glucose, BMI, age, hypertension flag.'],
+                        ['Chronic Kidney Disease', 'UCI CKD Dataset. Features: serum creatinine, urine protein, blood glucose, hemoglobin.'],
+                        ['Diabetes Risk', 'PIMA Indians Diabetes Dataset. Features: HbA1c, blood glucose, BMI, insulin level.'],
+                    ];
+                @endphp
 
-                        {{-- Rating --}}
-                        <div class="flex gap-0.5 mb-4 text-[#F5B731] text-base">
-                            @for ($star = 0; $star < 5; $star++)
-                                <span>★</span>
-                            @endfor
+                @foreach ($models as $i => [$disease, $detail])
+                    <div class="reveal flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-brand-teal/20 hover:bg-brand-teal-wash transition-colors duration-200"
+                         style="transition-delay: {{ ($i + 2) * 0.07 }}s;">
+                        <div class="shrink-0 w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm mt-0.5">
+                            <svg class="w-4 h-4 text-brand-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
                         </div>
-
-                        {{-- Quote --}}
-                        <p class="text-gray-600 italic leading-relaxed mb-8 relative z-10 before:content-['\201C'] before:font-display before:text-5xl before:text-brand-teal-pale before:absolute before:-top-3 before:-left-1 before:line-height-0">
-                            {{ $item['quote'] }}
-                        </p>
-
-                        {{-- Author --}}
-                        <div class="flex items-center gap-4 pt-6 border-t border-gray-100">
-                            <div class="w-11 h-11 rounded-full bg-gradient-to-br {{ $item['avatar_bg'] }} flex items-center justify-center text-xl shrink-0">
-                                {{ $item['avatar'] }}
-                            </div>
-                            <div>
-                                <div class="font-semibold text-sm text-gray-800">{{ $item['name'] }}</div>
-                                <div class="text-xs text-gray-400">{{ $item['condition'] }}</div>
-                            </div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-800 mb-0.5">{{ $disease }}</div>
+                            <div class="text-xs text-gray-500 leading-relaxed">{{ $detail }}</div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            {{-- Mobile Carousel Slide View --}}
-            <div class="block md:hidden overflow-hidden relative px-4">
-                <div class="flex transition-transform duration-300 ease-out"
-                     :style="'transform: translateX(-' + (activeTab * 100) + '%)'">
-                    @foreach ($testimonials as $i => $item)
-                        <div class="w-full shrink-0 px-2">
-                            <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-md relative">
-                                <div class="flex gap-0.5 mb-4 text-[#F5B731] text-base">
-                                    @for ($star = 0; $star < 5; $star++)
-                                        <span>★</span>
-                                    @endfor
-                                </div>
-                                <p class="text-gray-600 italic leading-relaxed mb-6 relative z-10 before:content-['\201C'] before:font-display before:text-5xl before:text-brand-teal-pale before:absolute before:-top-3 before:-left-1">
-                                    {{ $item['quote'] }}
-                                </p>
-                                <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
-                                    <div class="w-11 h-11 rounded-full bg-gradient-to-br {{ $item['avatar_bg'] }} flex items-center justify-center text-xl shrink-0">
-                                        {{ $item['avatar'] }}
-                                    </div>
-                                    <div>
-                                        <div class="font-semibold text-sm text-gray-800">{{ $item['name'] }}</div>
-                                        <div class="text-xs text-gray-400">{{ $item['condition'] }}</div>
-                                    </div>
-                                </div>
+            {{-- Right: Clinical thresholds + methodology --}}
+            <div class="reveal space-y-6" style="transition-delay: 0.2s;">
+                <div>
+                    <h3 class="font-display text-xl text-gray-800 mb-4">Clinical Thresholds Applied</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        @php
+                            $thresholds = [
+                                ['Systolic BP', '≥130 mmHg → Hypertension risk'],
+                                ['Fasting Glucose', '≥126 mg/dL → Diabetes threshold'],
+                                ['HbA1c', '≥6.5% → Diabetic range'],
+                                ['BMI', '≥30 → Obese (elevated risk)'],
+                                ['Urine Protein', 'Proteinuria → CKD marker'],
+                                ['Serum Creatinine', 'eGFR-based CKD staging'],
+                            ];
+                        @endphp
+                        @foreach ($thresholds as [$metric, $meaning])
+                            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3.5">
+                                <div class="text-xs font-bold text-gray-800 mb-1">{{ $metric }}</div>
+                                <div class="text-[11px] text-gray-500 leading-relaxed">{{ $meaning }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="bg-brand-teal-pale border border-brand-teal/15 rounded-2xl p-6">
+                    <div class="flex items-start gap-3">
+                        <div class="shrink-0 w-8 h-8 rounded-lg bg-brand-teal flex items-center justify-center mt-0.5">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-brand-teal mb-1">Not a Medical Device</div>
+                            <div class="text-xs text-[#0a5a5a] leading-relaxed">
+                                Didaction Healthcare is a risk screening tool, not a diagnostic instrument. Predictions are probabilistic estimates based on population datasets. Always consult a licensed healthcare professional for diagnosis and treatment.
                             </div>
                         </div>
-                    @endforeach
-                </div>
-
-                {{-- Carousel Indicator dots --}}
-                <div class="flex justify-center gap-2 mt-6">
-                    @foreach ($testimonials as $i => $item)
-                        <button @click="activeTab = {{ $i }}"
-                                class="w-2.5 h-2.5 rounded-full transition-all duration-300"
-                                :class="activeTab === {{ $i }} ? 'bg-brand-teal w-6' : 'bg-gray-300'">
-                        </button>
-                    @endforeach
+                    </div>
                 </div>
             </div>
-
         </div>
+
+        {{-- Bottom: ML algorithm highlight bar --}}
+        <div class="reveal border border-gray-100 rounded-2xl overflow-hidden" style="transition-delay: 0.3s;">
+            <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+                <div class="px-8 py-6 text-center sm:text-left">
+                    <div class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Core Algorithm</div>
+                    <div class="font-display text-2xl text-gray-900">XGBoost</div>
+                    <div class="text-xs text-gray-400 mt-1">Gradient-boosted decision trees — industry standard for tabular clinical data</div>
+                </div>
+                <div class="px-8 py-6 text-center">
+                    <div class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Models Deployed</div>
+                    <div class="font-display text-2xl text-gray-900">5 Independent</div>
+                    <div class="text-xs text-gray-400 mt-1">One per disease, trained and validated separately</div>
+                </div>
+                <div class="px-8 py-6 text-center sm:text-right">
+                    <div class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Input Features</div>
+                    <div class="font-display text-2xl text-gray-900">Clinical Biomarkers</div>
+                    <div class="text-xs text-gray-400 mt-1">Glucose, BP, BMI, HbA1c, creatinine, protein — not lifestyle surveys</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>

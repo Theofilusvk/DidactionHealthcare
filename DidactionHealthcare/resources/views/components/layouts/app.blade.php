@@ -24,10 +24,9 @@
 
     {{ $slot }}
 
-    {{-- Robust Scroll Reveal and Stats Counters Initialization --}}
+    {{-- Scroll Reveal --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Scroll Reveal Observer
             const revealElements = document.querySelectorAll('.reveal');
             const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -36,54 +35,11 @@
                         revealObserver.unobserve(entry.target);
                     }
                 });
-            }, { 
-                threshold: 0.1, 
-                rootMargin: '0px 0px -20px 0px' 
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -20px 0px'
             });
             revealElements.forEach(el => revealObserver.observe(el));
-
-            // Stats Counter Observer
-            const statsElement = document.querySelector('.hero-stats-trigger');
-            if (statsElement) {
-                const animateCounter = (el, target, suffix = '') => {
-                    const duration = 1500;
-                    const start = performance.now();
-                    const step = (now) => {
-                        const progress = Math.min((now - start) / duration, 1);
-                        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-                        const current = Math.round(eased * target);
-                        el.textContent = current + suffix;
-                        if (progress < 1) requestAnimationFrame(step);
-                    };
-                    requestAnimationFrame(step);
-                };
-
-                const statsObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const val1 = entry.target.querySelector('.stat-val-1');
-                            const val2 = entry.target.querySelector('.stat-val-2');
-                            const val3 = entry.target.querySelector('.stat-val-3');
-                            
-                            if (val1) animateCounter(val1, 92);
-                            if (val2) {
-                                const dur = 1500;
-                                const startTime = performance.now();
-                                const step = (now) => {
-                                    const p = Math.min((now - startTime) / dur, 1);
-                                    const eased = 1 - Math.pow(1 - p, 3);
-                                    val2.textContent = (eased * 7.2).toFixed(1) + 'h';
-                                    if (p < 1) requestAnimationFrame(step);
-                                };
-                                requestAnimationFrame(step);
-                            }
-                            if (val3) animateCounter(val3, 1840);
-                            statsObserver.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.3 });
-                statsObserver.observe(statsElement);
-            }
         });
     </script>
 </body>
