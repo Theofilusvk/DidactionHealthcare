@@ -11,7 +11,7 @@
     </style>
 
     <div class="min-h-screen bg-gradient-to-br from-[#ECF9F6] via-[#F4FBF9] to-[#E8F8F5] bg-grid-pattern text-slate-800 font-sans selection:bg-teal-100 selection:text-teal-900 pb-20">
-        <main class="max-w-7xl mx-auto px-4 lg:px-8 pt-12">
+        <main class="max-w-7xl mx-auto px-4 lg:px-8 pt-24">
             <!-- CORE ASSESSMENT SECTION -->
             <section id="assessment-section" class="scroll-mt-24">
                 
@@ -444,15 +444,22 @@
                             <!-- Penyakit Metrics (Predictions) -->
                             <div class="space-y-2">
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Prediksi Risiko Penyakit</h4>
-                                <div id="metricsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                <div id="metricsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     @if($hasResult && !empty($res['predictions']))
-                                        @foreach($res['predictions'] as $metric)
+                                        @php
+                                            $predictionsList = array_values($res['predictions']);
+                                            $totalPredictions = count($predictionsList);
+                                        @endphp
+                                        @foreach($predictionsList as $index => $metric)
                                             @php
                                                 $metricBadgeClass = "bg-emerald-50 text-emerald-700";
                                                 if ($metric['risk_level'] === 'Moderate') $metricBadgeClass = "bg-amber-50 text-amber-700";
                                                 elseif ($metric['risk_level'] === 'High') $metricBadgeClass = "bg-rose-50 text-rose-700";
+                                                
+                                                $isLastOdd = ($index === $totalPredictions - 1) && ($totalPredictions % 2 !== 0);
+                                                $colSpanClass = $isLastOdd ? 'sm:col-span-2' : '';
                                             @endphp
-                                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5">
+                                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5 {{ $colSpanClass }}">
                                                 <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wide">{{ $metric['label'] }}</div>
                                                 <div class="font-mono text-lg font-bold text-slate-800">{{ $metric['percentage'] }}</div>
                                                 <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded {{ $metricBadgeClass }}">
@@ -675,13 +682,17 @@
             const metricsContainer = document.getElementById('metricsGrid');
             metricsContainer.innerHTML = '';
             
-            predictions.sort((a,b) => b.probability - a.probability).forEach(metric => {
+            const sortedPredictions = predictions.sort((a,b) => b.probability - a.probability);
+            sortedPredictions.forEach((metric, index) => {
                 let badgeClass = "bg-emerald-50 text-emerald-700";
                 if (metric.risk_level === 'Moderate') badgeClass = "bg-amber-50 text-amber-700";
                 else if (metric.risk_level === 'High') badgeClass = "bg-rose-50 text-rose-700";
 
+                const isLastOdd = (index === sortedPredictions.length - 1) && (sortedPredictions.length % 2 !== 0);
+                const colSpanClass = isLastOdd ? 'sm:col-span-2' : '';
+
                 const widget = `
-                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5">
+                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm space-y-1.5 ${colSpanClass}">
                         <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wide">${metric.label}</div>
                         <div class="font-mono text-lg font-bold text-slate-800">${metric.percentage}</div>
                         <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeClass}">

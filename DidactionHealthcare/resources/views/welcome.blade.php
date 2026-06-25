@@ -3,7 +3,6 @@
     <x-hero />
     <x-how-it-works />
     <x-features />
-    <x-demo-preview />
     <x-testimonials />
     <x-cta-banner />
     <x-footer />

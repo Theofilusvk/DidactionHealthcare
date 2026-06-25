@@ -14,11 +14,13 @@
     $previewStatus   = 'Bahaya';       // 'Aman' | 'Peringatan' | 'Bahaya'
     $highestRisk     = 'Hypertension (60.9%)';
 
-    /* Top 3 predictions shown in the card */
+    /* Top 5 predictions shown in the card */
     $previewDiseases = [
         ['label' => 'Hypertension',           'pct' => '60.9%', 'level' => 'High'],
         ['label' => 'Heart Disease',           'pct' => '54.4%', 'level' => 'Moderate'],
         ['label' => 'Chronic Kidney Disease',  'pct' => '52.3%', 'level' => 'Moderate'],
+        ['label' => 'Diabetes',                'pct' => '50.9%', 'level' => 'Moderate'],
+        ['label' => 'Stroke',                  'pct' => '49.8%', 'level' => 'Moderate'],
     ];
 
     /* Recommendation snippet */
@@ -60,7 +62,7 @@
 <div class="relative flex justify-center items-start">
 
     {{-- ── Floating "Analisis Selesai" accent badge ── --}}
-    <div class="hidden lg:flex absolute -top-3 -left-4 z-10
+    <div class="hidden lg:flex absolute -top-4 -left-8 z-10
                 items-center gap-1.5
                 bg-white border border-teal-200 shadow-md
                 text-[11px] font-semibold text-teal-700
@@ -148,10 +150,14 @@
                 <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
                     Prediksi Risiko Penyakit
                 </h4>
-                <div class="grid grid-cols-3 gap-2">
-                    @foreach ($previewDiseases as $d)
-                        @php $lc = $levelColors[$d['level']] ?? 'bg-emerald-50 text-emerald-700'; @endphp
-                        <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm space-y-1.5">
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach ($previewDiseases as $index => $d)
+                        @php 
+                            $lc = $levelColors[$d['level']] ?? 'bg-emerald-50 text-emerald-700'; 
+                            $isLastOdd = ($index === count($previewDiseases) - 1) && (count($previewDiseases) % 2 !== 0);
+                            $colSpanClass = $isLastOdd ? 'col-span-2' : '';
+                        @endphp
+                        <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm space-y-1.5 {{ $colSpanClass }}">
                             <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wide leading-tight">
                                 {{ $d['label'] }}
                             </div>
