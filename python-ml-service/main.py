@@ -221,9 +221,34 @@ class ModelBundle:
 
     # ── Loader ────────────────────────────────────────────────────────────────
     def load(self, model_path: Path) -> None:
-        # Coba muat model PyTorch utama
+        # ── Prioritas 1: Muat model-model XGBoost (.pkl) — model utama ──────
+        xgb_dir = Path(__file__).resolve().parent / "models"
+        xgb_files = {
+            "heart_disease": xgb_dir / "heart_disease_model.pkl",
+            "stroke":        xgb_dir / "stroke_model.pkl",
+            "diabetes":      xgb_dir / "diabetes_model.pkl",
+            "hypertension":  xgb_dir / "hypertension_model.pkl",
+            "ckd":           xgb_dir / "ckd_model.pkl",
+        }
+
+        all_xgb_exist = all(p.exists() for p in xgb_files.values())
+        if all_xgb_exist:
+            log.info("Memuat model-model XGBoost (.pkl) sebagai model utama...")
+            try:
+                import pickle
+                for disease, path in xgb_files.items():
+                    with open(path, "rb") as f:
+                        self.xgb_models[disease] = pickle.load(f)
+                self.loaded = True
+                self.mode   = "xgboost"
+                log.info(f"Semua model XGBoost berhasil dimuat. Mode: {self.mode}")
+                return
+            except Exception as e:
+                log.error(f"Gagal memuat model-model XGBoost: {e}. Mencoba model PyTorch...")
+
+        # ── Prioritas 2: Fallback ke model PyTorch (.pth) ───────────────────
         if model_path.exists():
-            log.info(f"Memuat model PyTorch dari: {model_path}")
+            log.info(f"Memuat model PyTorch (fallback) dari: {model_path}")
             try:
                 checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
 
@@ -263,36 +288,12 @@ class ModelBundle:
                 log.info(f"Model PyTorch berhasil dimuat. Mode: {self.mode}")
                 return
             except Exception as e:
-                log.error(f"Gagal memuat model PyTorch: {e}. Mencoba memuat model XGBoost...")
+                log.error(f"Gagal memuat model PyTorch: {e}.")
 
-        # Jika PyTorch model tidak ada, coba muat model-model XGBoost dari python-ml-service/models
-        xgb_dir = Path(__file__).resolve().parent / "models"
-        xgb_files = {
-            "heart_disease": xgb_dir / "heart_disease_model.pkl",
-            "stroke":        xgb_dir / "stroke_model.pkl",
-            "diabetes":      xgb_dir / "diabetes_model.pkl",
-            "hypertension":  xgb_dir / "hypertension_model.pkl",
-            "ckd":           xgb_dir / "ckd_model.pkl",
-        }
-
-        all_xgb_exist = all(p.exists() for p in xgb_files.values())
-        if all_xgb_exist:
-            log.info("Memuat model-model XGBoost (.pkl)...")
-            try:
-                import pickle
-                for disease, path in xgb_files.items():
-                    with open(path, "rb") as f:
-                        self.xgb_models[disease] = pickle.load(f)
-                self.loaded = True
-                self.mode   = "xgboost"
-                log.info(f"Semua model XGBoost berhasil dimuat. Mode: {self.mode}")
-                return
-            except Exception as e:
-                log.error(f"Gagal memuat model-model XGBoost: {e}")
-
-        # Jika tidak ada model yang bisa dimuat
+        # ── Prioritas 3: Mode FALLBACK (heuristik dummy) ─────────────────────
         log.warning(
-            f"File model tidak ditemukan di: {model_path} maupun model XGBoost (.pkl) di {xgb_dir}\n"
+            f"Tidak ada model yang bisa dimuat (XGBoost .pkl di {xgb_dir}, "
+            f"PyTorch .pth di {model_path}).\n"
             "  → Menggunakan mode FALLBACK (probabilitas dummy)."
         )
         self.loaded = False
@@ -390,7 +391,50 @@ async def lifespan(app: FastAPI):
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 4.  FASTAPI APP
-# ═════════════════# ─── Schemas untuk /generate-health-plan ───
+# ═══════════════════════════════════════════════════════════════════════════════
+
+app = FastAPI(
+    title="DHC Multi-Disease Prediction API",
+    description="API untuk memprediksi 5 penyakit kronis sekaligus.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ─── Schemas untuk /predict ───
+
+class PredictRequest(BaseModel):
+    age: float = Field(..., description="Usia (tahun)")
+    gender: int = Field(..., description="Jenis kelamin: 0=Female, 1=Male")
+    bmi: float = Field(..., description="Body Mass Index")
+    glucose: float = Field(..., description="Kadar Glukosa Darah")
+    blood_pressure: float = Field(..., description="Tekanan Darah Sistolik")
+    cholesterol: float = Field(..., description="Kolesterol Total")
+    heart_rate: float = Field(..., description="Detak Jantung")
+
+class DiseaseRisk(BaseModel):
+    disease: str
+    label: str
+    probability: float
+    percentage: str
+    risk_level: str
+
+class PredictResponse(BaseModel):
+    status: str
+    model_mode: str
+    input_echo: dict
+    predictions: list[DiseaseRisk]
+    highest_risk: str
+    disclaimer: str
+
+# ─── Schemas untuk /generate-health-plan ───
 
 class DiseaseRiskDetail(BaseModel):
     probability: float = Field(..., ge=0.0, le=1.0)
