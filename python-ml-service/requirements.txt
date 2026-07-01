@@ -5,13 +5,20 @@
 fastapi>=0.111.0
 uvicorn[standard]>=0.29.0
 
-# Data & ML
-numpy>=1.26.0
-torch>=2.2.0          # PyTorch CPU; untuk GPU: torch>=2.2.0+cu121
-scikit-learn>=1.4.0   # Untuk StandardScaler jika digunakan di luar model
+# HTTP client (digunakan main.py untuk memanggil Gemini/OpenAI API)
+httpx>=0.27.0
 
-# Data validation (sudah bundled dengan FastAPI, tapi explicit lebih aman)
+# Data & ML — runtime
+numpy>=1.26.0
+scikit-learn>=1.4.0
+xgboost>=2.0.0
 pydantic>=2.7.0
 
-# Opsional — untuk load model XGBoost jika bundle berisi keduanya
-xgboost>=2.0.0
+# Data & ML — training (train_from_db.py)
+pandas>=2.2.0
+pymysql>=1.1.0
+imbalanced-learn>=0.12.0
+python-dotenv>=1.0.0
+
+# PyTorch (fallback model — bisa dilewati jika hanya pakai XGBoost)
+torch>=2.2.0

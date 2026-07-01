@@ -37,13 +37,15 @@ Input model: 7 fitur kesehatan (usia, jenis kelamin, BMI, glukosa, tekanan darah
 
 ## Prasyarat
 
-Pastikan software berikut sudah terinstal:
+Pastikan software berikut sudah terinstal di sistem:
 
-- PHP >= 8.2
-- Composer
-- Node.js dan npm
-- Python >= 3.10
-- MySQL
+| Software | Versi Minimum | Keterangan |
+|----------|--------------|-----------|
+| PHP | 8.2 | Dengan ekstensi: pdo, pdo_mysql, mbstring, openssl, tokenizer, xml, ctype, json, bcmath |
+| Composer | 2.x | Package manager PHP |
+| Node.js | 18.x | Dengan npm |
+| Python | 3.10 | Dengan pip |
+| MySQL | 8.0 | Database utama |
 
 ---
 
@@ -51,22 +53,32 @@ Pastikan software berikut sudah terinstal:
 
 ### 1. Clone Repository
 
-```bash
+```
 git clone <url-repository>
 cd DHC
 ```
 
-### 2. Setup Laravel (Backend Web)
+### 2. Install Dependencies PHP (Laravel)
 
-```bash
+```
 cd DidactionHealthcare
 composer install
+```
+
+### 3. Install Dependencies Frontend (Node.js)
+
+```
 npm install
+```
+
+### 4. Konfigurasi Environment Laravel
+
+```
 cp .env.example .env
 php artisan key:generate
 ```
 
-Edit file `.env` dan sesuaikan konfigurasi database:
+Edit file `.env` dan sesuaikan konfigurasi berikut:
 
 ```
 DB_CONNECTION=mysql
@@ -75,11 +87,7 @@ DB_PORT=3306
 DB_DATABASE=didaction_healthcare
 DB_USERNAME=root
 DB_PASSWORD=
-```
 
-Tambahkan konfigurasi layanan ML dan Gemini API:
-
-```
 ML_SERVICE_URL=http://127.0.0.1:8001
 ML_SERVICE_TIMEOUT=30
 
@@ -87,29 +95,46 @@ GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-2.5-flash
 ```
 
-Jalankan migrasi dan seeder dataset:
+### 5. Migrasi Database dan Isi Dataset
 
-```bash
+```
 php artisan migrate
 php artisan db:seed --class=HealthRecordDatasetSeeder
 ```
 
-### 3. Setup Python ML Service
+### 6. Install Dependencies Python
 
-```bash
+```
 cd ../python-ml-service
 pip install -r requirements.txt
 ```
 
-### 4. Latih Model XGBoost
+Daftar package yang akan diinstall:
+
+- `fastapi`, `uvicorn` — web framework untuk ML service
+- `httpx` — HTTP client untuk memanggil Gemini/OpenAI API
+- `numpy`, `scikit-learn`, `xgboost`, `pydantic` — library ML runtime
+- `pandas`, `pymysql`, `imbalanced-learn`, `python-dotenv` — library training model
+- `torch` — PyTorch (digunakan sebagai model fallback)
+
+### 7. Latih Model XGBoost
 
 Pastikan database sudah terisi data dari seeder, kemudian jalankan:
 
-```bash
+```
 python train_from_db.py
 ```
 
-Perintah ini akan mengambil data dari MySQL, melatih 5 model XGBoost, dan menyimpannya sebagai file `.pkl` di folder `python-ml-service/models/`.
+Perintah ini akan:
+1. Mengambil data dari tabel `health_records` di MySQL
+2. Melakukan preprocessing dan binarisasi label
+3. Melatih 5 model XGBClassifier (satu per penyakit)
+4. Menyimpan model sebagai file `.pkl` di folder `python-ml-service/models/`
+
+Tanda berhasil:
+```
+SELESAI -- 5 model berhasil dilatih dan disimpan
+```
 
 ---
 
